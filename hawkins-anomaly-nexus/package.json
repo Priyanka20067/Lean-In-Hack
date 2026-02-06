@@ -1,0 +1,15 @@
+{
+  "name": "hawkins-anomaly-nexus",
+  "version": "1.0.0",
+  "description": "Offline-first anomaly detection app with Stranger Things theming",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,0 +1,1 @@
+// Report Anomaly screen component
