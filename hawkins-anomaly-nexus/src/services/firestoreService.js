@@ -3,6 +3,7 @@ import {
     addDoc,
     updateDoc,
     doc,
+    getDoc,
     getDocs,
     query,
     where,
@@ -18,8 +19,17 @@ export const createAnomalyInFirestore = async (anomalyData, uid) => {
         ...anomalyData,
         createdBy: uid,
         createdAt: serverTimestamp(),
-        status: 'OPEN'
+        status: 'open'
     });
+};
+
+export const incrementUserPoints = async (userId, amount) => {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+        const currentPoints = userSnap.data().points || 0;
+        await updateDoc(userRef, { points: currentPoints + amount });
+    }
 };
 
 export const subscribeToAnomalies = (callback) => {
@@ -49,4 +59,10 @@ export const subscribeToMessages = (anomalyId, callback) => {
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         callback(data);
     });
+};
+
+export const getAnomalyCountForUser = async (uid) => {
+    const q = query(collection(db, 'anomalies'), where('createdBy', '==', uid));
+    const snap = await getDocs(q);
+    return snap.size;
 };
