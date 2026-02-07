@@ -26,14 +26,22 @@ export default function RoomPage() {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
-        await sendMessageToFirestore(id, {
-            text: newMessage,
-            senderId: userId,
-            senderName: `AGENT_${userId?.substring(0, 4).toUpperCase()}`,
-            timestamp: Date.now()
-        });
+        try {
+            await sendMessageToFirestore(id, {
+                text: newMessage,
+                senderId: userId,
+                senderName: `AGENT_${userId?.substring(0, 4).toUpperCase()}`,
+                timestamp: Date.now()
+            });
 
-        setNewMessage('');
+            // Step 7: +5 points for participating in room
+            const { incrementUserPoints } = await import('../services/firestoreService');
+            await incrementUserPoints(userId, 5);
+
+            setNewMessage('');
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
     };
 
     return (
