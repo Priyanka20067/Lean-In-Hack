@@ -1,67 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
 :root {
-  --color-bg-dark: #0a0a0a;
-  --color-bg-panel: #1a1a1a;
-  --color-primary: #ff0033; /* Demogorgon Red */
-  --color-primary-glow: rgba(255, 0, 51, 0.6);
-  --color-text-main: #e0e0e0;
-  --color-text-muted: #a0a0a0;
-  --font-heading: 'Courier New', Courier, monospace; /* Retro vibe */
-  --font-body: 'Inter', system-ui, sans-serif;
+  /* Core Palette */
+  --color-bg-dark: #020408;
+  /* Midnight Black */
+  --color-bg-navy: #0a1128;
+  /* Deep Navy */
+  --color-primary: #00f2ff;
+  /* Electric Cyan */
+  --color-secondary: #00ff7f;
+  /* Neon Green */
+  --color-accent: #ff2a6d;
+  /* Hot Pink / Accent */
+  --color-danger: #fe0000;
+  /* Blood Red */
+  --color-text: #e0e6ed;
+  /* Bright White */
+  --color-text-dim: #94a3b8;
+  /* Silver / Gray */
+  --color-border: #1e293b;
+  /* Charcoal/Gunmetal */
+
+  /* UI Tokens */
+  --glow-primary: 0 0 10px rgba(0, 242, 255, 0.5);
+  --glow-secondary: 0 0 10px rgba(0, 255, 127, 0.5);
+  --glow-danger: 0 0 10px rgba(254, 0, 0, 0.5);
+  --transition-speed: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  padding: 0;
+  font-family: 'Montserrat', sans-serif;
   background-color: var(--color-bg-dark);
-  color: var(--color-text-main);
-  font-family: var(--font-body);
+  color: var(--color-text);
+  line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, button {
-  font-family: var(--font-heading);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.2em;
+  font-weight: 800;
+  color: var(--color-text);
 }
 
-/* Utilities */
+code,
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Base Container */
 .container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 2rem;
+  min-height: 100vh;
+  position: relative;
 }
 
-.glow-text {
-  text-shadow: 0 0 10px var(--color-primary-glow);
+/* HUD & Borders */
+.hud-border {
+  border: 1px solid var(--color-border);
+  position: relative;
+  background: rgba(10, 17, 40, 0.4);
+  backdrop-filter: blur(10px);
 }
 
+.hud-border::before,
+.hud-border::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--color-primary);
+}
+
+.hud-border::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.hud-border::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Buttons */
 .btn-primary {
   background: transparent;
-  border: 2px solid var(--color-primary);
   color: var(--color-primary);
-  padding: 12px 24px;
-  font-size: 1.2rem;
+  border: 1px solid var(--color-primary);
+  padding: 0.75rem 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 10px var(--color-primary-glow);
+  transition: all var(--transition-speed);
+  box-shadow: var(--glow-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-primary:hover {
   background: var(--color-primary);
-  color: #000;
+  color: var(--color-bg-dark);
   box-shadow: 0 0 20px var(--color-primary);
+  transform: translateY(-2px);
 }
 
-/* Background Effect (Mock Cracks) */
-.bg-cracks {
+.btn-danger {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  box-shadow: var(--glow-danger);
+}
+
+.btn-danger:hover {
+  background: var(--color-danger);
+  color: white;
+  box-shadow: 0 0 20px var(--color-danger);
+}
+
+/* Layout Utilities */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Glitch Effect */
+.glitch {
+  position: relative;
+  animation: glitch-skew 1s infinite linear alternate-reverse;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -2px 0 var(--color-accent);
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -2px 0 var(--color-primary);
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% {
+    clip: rect(31px, 9999px, 94px, 0);
+  }
+
+  20% {
+    clip: rect(62px, 9999px, 81px, 0);
+  }
+
+  /* ... more frames ... */
+  100% {
+    clip: rect(10px, 9999px, 29px, 0);
+  }
+}
+
+@keyframes glitch-anim2 {
+  0% {
+    clip: rect(65px, 9999px, 100px, 0);
+  }
+
+  /* ... more frames ... */
+  100% {
+    clip: rect(2px, 9999px, 51px, 0);
+  }
+}
+
+@keyframes glitch-skew {
+  0% {
+    transform: skew(4deg);
+  }
+
+  10% {
+    transform: skew(-4deg);
+  }
+
+  /* ... */
+  100% {
+    transform: skew(0deg);
+  }
+}
+
+/* Background Effects */
+.bg-scanlines {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: radial-gradient(circle at center, transparent 0%, #000 90%), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M10 10 L30 30 M50 20 L20 80" stroke="%23330000" stroke-width="1"/></svg>');
-  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  z-index: 1000;
   pointer-events: none;
-  opacity: 0.3;
+  opacity: 0.15;
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(30, 41, 59, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 41, 59, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 10px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade {
+  animation: fadeIn 0.8s ease forwards;
 }
