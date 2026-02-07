@@ -1,153 +1,229 @@
 import React, { useState, useEffect } from 'react';
-import { saveAnomaly, getPendingAnomalies, getAllAnomalies } from '../services/storage';
+import { saveAnomalyLocally, getLocalAnomalies, syncPendingItems } from '../services/storage';
 import { analyzeAnomaly } from '../services/ai';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { deleteDB } from 'idb';
 
 export default function ReportPage() {
-    const [description, setDescription] = useState('');
-    const [isRecording, setIsRecording] = useState(false);
-    const [status, setStatus] = useState('');
-    const [recentAnomalies, setRecentAnomalies] = useState([]);
-    const [isOnline, setIsOnline] = useState(navigator.onLine);
     const navigate = useNavigate();
+    const { userId } = useAuth();
+    const [description, setDescription] = useState('');
+    const [locationName, setLocationName] = useState('');
+    const [status, setStatus] = useState('');
+    const [recentLogs, setRecentLogs] = useState([]);
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
 
     useEffect(() => {
-        loadAnomalies();
+        const handleStatusChange = () => {
+            setIsOnline(navigator.onLine);
+            if (navigator.onLine && userId) {
+                syncPendingItems(userId);
+            }
+        };
+        window.addEventListener('online', handleStatusChange);
+        window.addEventListener('offline', handleStatusChange);
 
-        const handleOnline = () => setIsOnline(true);
-        const handleOffline = () => setIsOnline(false);
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
+        loadHistory();
 
         return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
+            window.removeEventListener('online', handleStatusChange);
+            window.removeEventListener('offline', handleStatusChange);
         };
-    }, []);
+    }, [userId]);
 
-    const loadAnomalies = async () => {
-        const all = await getAllAnomalies();
-        setRecentAnomalies(all.reverse()); // Show newest first
+    const loadHistory = async () => {
+        const logs = await getLocalAnomalies();
+        setRecentLogs(logs.reverse().slice(0, 5));
     };
 
     const handleVoiceInput = () => {
-        setIsRecording(true);
-        setTimeout(() => {
-            setDescription((prev) => prev + " The lights are flickering in the gym and it's getting cold. ");
-            setIsRecording(false);
-        }, 2000); // Mock delay
+        setDescription("Detected massive fluctuation in electromagnetic fields near the starcourt ruins.");
     };
 
     const handleSubmit = async () => {
         if (!description.trim()) return;
 
-        setStatus('Analyzing...');
+        setStatus('[ ANALYZING DATA... ]');
 
-        // AI Analysis
         const analysis = analyzeAnomaly(description);
 
         const newAnomaly = {
-            id: Date.now(),
             description,
+            locationName: locationName || 'Unknown Sector',
             ...analysis,
-            synced: 0, // Not synced yet
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            coordinates: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10 }
         };
 
-        // Save Offline
-        await saveAnomaly(newAnomaly);
+        try {
+            await saveAnomalyLocally(newAnomaly);
 
-        setStatus('Anomaly Logged (Offline)');
-        setDescription('');
+            if (isOnline && userId) {
+                setStatus('[ SYNCING TO CENTRAL NODE... ]');
+                await syncPendingItems(userId);
+            }
 
-        // Refresh list
-        await loadAnomalies();
+            setStatus('[ TRANSMISSION SUCCESSFUL ]');
+            setDescription('');
+            setLocationName('');
+            loadHistory();
 
-        // Mock Sync attempt (if online)
-        if (isOnline) {
-            setStatus('Syncing to Nexus...');
             setTimeout(() => {
-                setStatus('Transmitted Successfully.');
-            }, 1000);
+                navigate('/map');
+            }, 1500);
+        } catch (e) {
+            console.error(e);
+            setStatus(`[ ERROR: ${e.message.toUpperCase()} ]`);
+        }
+    };
+
+    const handleHardReset = async () => {
+        if (confirm("THIS WILL WIPE THE LOCAL SECURE DATABASE. CONTINUE?")) {
+            await deleteDB('hanex-db');
+            window.location.reload();
         }
     };
 
     return (
-        <div className="container">
-            <h2 className="glow-text" style={{ textAlign: 'center' }}>REPORT ANOMALY</h2>
+        <div className="container animate-fade">
+            <div className="bg-grid"></div>
 
-            <div style={{
-                background: 'var(--color-bg-panel)',
-                padding: '20px',
-                borderRadius: '8px',
-                border: '1px solid #333',
-                marginBottom: '20px'
-            }}>
-                <div style={{ marginBottom: '10px', fontSize: '0.9rem', color: isOnline ? '#4caf50' : '#f44336' }}>
-                    CONNECTION STATUS: {isOnline ? 'ONLINE' : 'OFFLINE (Local Mode)'}
+            <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <div>
+                    <h2 className="mono" style={{ color: 'var(--color-primary)', fontSize: '1.2rem', marginBottom: '0.2rem' }}>
+                        FIELD_LOG_ENTRY
+                    </h2>
+                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-secondary)' }}>
+                        OPERATOR: AGENT_{userId?.substring(0, 5).toUpperCase()}
+                    </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                    <div className="mono" style={{ fontSize: '0.6rem', color: isOnline ? 'var(--color-secondary)' : 'var(--color-danger)' }}>
+                        LINK: {isOnline ? 'ENCRYPTED' : 'OFFLINE'}
+                    </div>
+                </div>
+            </div>
+
+            <div className="hud-border" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
+                {/* Classified Stamp */}
+                <div style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    border: '2px solid var(--color-danger)',
+                    color: 'var(--color-danger)',
+                    padding: '2px 8px',
+                    fontSize: '0.6rem',
+                    fontWeight: 'bold',
+                    transform: 'rotate(15deg)',
+                    opacity: 0.5,
+                    pointerEvents: 'none',
+                    fontFamily: 'JetBrains Mono'
+                }}>
+                    CLASSIFIED
                 </div>
 
-                <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe the strange event..."
+                <p className="mono" style={{ fontSize: '0.7rem', color: 'var(--color-text-dim)', marginBottom: '0.5rem' }}>
+                    SPECIFY LOCATION / SECTOR:
+                </p>
+                <input
+                    type="text"
                     style={{
                         width: '100%',
-                        height: '100px',
-                        background: '#000',
-                        color: '#fff',
-                        border: '1px solid #444',
-                        padding: '10px',
-                        fontSize: '1rem',
-                        marginBottom: '10px'
+                        background: 'rgba(0,0,0,0.5)',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text)',
+                        padding: '0.75rem',
+                        fontFamily: 'JetBrains Mono',
+                        fontSize: '0.8rem',
+                        marginBottom: '1rem',
+                        outline: 'none',
                     }}
+                    placeholder="e.g. Starcourt Mall, Sector 7-G..."
+                    value={locationName}
+                    onChange={(e) => setLocationName(e.target.value)}
                 />
 
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                    <button
-                        type="button"
-                        onClick={handleVoiceInput}
-                        style={{
-                            flex: 1,
-                            background: isRecording ? 'red' : '#333',
-                            color: 'white',
-                            border: 'none',
-                            padding: '10px'
-                        }}
-                    >
-                        {isRecording ? 'LISTENING...' : '🎤 VOICE INPUT'}
+                <p className="mono" style={{ fontSize: '0.7rem', color: 'var(--color-text-dim)', marginBottom: '0.5rem' }}>
+                    DESCRIBE DETECTED PHENOMENON:
+                </p>
+
+                <textarea
+                    style={{
+                        width: '100%',
+                        background: 'rgba(0,0,0,0.5)',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text)',
+                        padding: '1rem',
+                        fontFamily: 'JetBrains Mono',
+                        fontSize: '0.9rem',
+                        resize: 'none',
+                        marginBottom: '1.5rem',
+                        outline: 'none',
+                        minHeight: '120px'
+                    }}
+                    placeholder="Input data stream..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                ></textarea>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <button onClick={handleVoiceInput} className="btn-primary" style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-dim)', background: 'transparent', boxShadow: 'none' }}>
+                        🎤 AUDIO_FEED
+                    </button>
+                    <button onClick={handleSubmit} className="btn-primary">
+                        TRANSMIT &rarr;
                     </button>
                 </div>
-
-                <button onClick={handleSubmit} className="btn-primary" style={{ width: '100%' }}>
-                    SUBMIT REPORT
-                </button>
-
-                {status && <p style={{ marginTop: '10px', color: 'var(--color-primary)' }}>[{status}]</p>}
             </div>
 
-            <h3 style={{ borderBottom: '1px solid #333', paddingBottom: '10px' }}>RECENT LOGS</h3>
-            <div>
-                {recentAnomalies.length === 0 ? (
-                    <p style={{ color: '#666' }}>No anomalies reported recently.</p>
-                ) : (
-                    recentAnomalies.map((a) => (
-                        <div key={a.id} style={{
-                            marginBottom: '10px',
-                            padding: '10px',
-                            borderLeft: `4px solid ${a.urgency === 'Code Red' || a.urgency === 'Critical' ? 'red' : 'orange'}`,
-                            background: '#111'
+            {status && (
+                <div className="mono" style={{
+                    marginTop: '1.5rem',
+                    textAlign: 'center',
+                    fontSize: '0.8rem',
+                    color: status.includes('ERROR') ? 'var(--color-danger)' : 'var(--color-primary)'
+                }}>
+                    {status}
+                </div>
+            )}
+
+            {/* Database Summary Section */}
+            <div style={{ marginTop: '3rem' }}>
+                <h3 className="mono" style={{ fontSize: '0.8rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem', marginBottom: '1rem', color: 'var(--color-text-dim)' }}>
+                    RECENT_TRANSMISSIONS
+                </h3>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {recentLogs.map((log, i) => (
+                        <div key={i} className="mono" style={{
+                            fontSize: '0.7rem',
+                            padding: '0.5rem',
+                            background: 'rgba(30, 41, 59, 0.2)',
+                            borderLeft: `2px solid ${log.urgency === 'High' ? 'var(--color-danger)' : 'var(--color-secondary)'}`,
+                            display: 'flex',
+                            justifyContent: 'space-between'
                         }}>
-                            <div style={{ fontWeight: 'bold' }}>{a.type} <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>({a.urgency})</span></div>
-                            <div style={{ fontSize: '0.9rem', color: '#ccc' }}>{a.description}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#555' }}>
-                                {new Date(a.timestamp).toLocaleTimeString()} - {a.synced ? 'Synced' : 'Local'}
+                            <div>
+                                <span style={{ color: 'var(--color-text-dim)' }}>[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                                <span style={{ marginLeft: '1rem' }}>{log.type}/{log.urgency}</span>
+                            </div>
+                            <div style={{ color: log.syncStatus === 'synced' ? 'var(--color-secondary)' : 'var(--color-accent)' }}>
+                                {log.syncStatus === 'synced' ? 'SYNCED' : 'PENDING'}
                             </div>
                         </div>
-                    ))
-                )}
+                    ))}
+                    {recentLogs.length === 0 && <p className="mono" style={{ fontSize: '0.7rem', color: '#444' }}>NO PREVIOUS DATA FOUND</p>}
+                </div>
             </div>
+
+            <div style={{ marginTop: '3rem', textAlign: 'center' }}>
+                <button onClick={handleHardReset} className="btn-primary btn-danger" style={{ fontSize: '0.6rem', padding: '0.4rem 1rem' }}>
+                    WIPE_LOCAL_DATAVAULT
+                </button>
+            </div>
+
         </div>
     );
 }
