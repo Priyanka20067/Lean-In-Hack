@@ -86,14 +86,17 @@ export default function MapPage() {
               key={a.id}
               className="sig-point"
               onClick={() => navigate(`/room/${a.id}`)}
-              style={{ left: `${a.x}%`, top: `${a.y}%`, '--sig-color': sig.color }}
+              style={{ left: `${a.x}%`, top: `${a.y}%`, '--sig-color': a.color || sig.color }}
             >
               <div className="sig-target">
                 <div className="sig-glyph">{sig.icon}</div>
               </div>
               <div className="sig-info mono">
-                <div style={{ color: sig.color, fontWeight: 'bold' }}>{sig.label} [{a.type?.toUpperCase() || 'UNK'}]</div>
-                <div style={{ fontSize: '0.6rem', color: 'var(--color-secondary)', marginTop: '2px' }}>LOCATION: {a.locationName?.toUpperCase() || 'UNKNOWN'}</div>
+                <div style={{ color: a.color || sig.color, fontWeight: 'bold' }}>{sig.label} [{a.type?.toUpperCase() || 'UNK'}]</div>
+                <div style={{ fontSize: '0.6rem', color: 'var(--color-text)', marginTop: '2px', borderBottom: '1px solid #333', paddingBottom: '2px' }}>
+                  {a.description?.substring(0, 30)}...
+                </div>
+                <div style={{ fontSize: '0.6rem', color: 'var(--color-secondary)', marginTop: '2px' }}>LOC: {a.locationName?.toUpperCase() || 'UNKNOWN'}</div>
                 <div style={{ fontSize: '0.5rem', color: '#888', marginTop: '2px' }}>HASH_{a.id.substring(0, 6).toUpperCase()}</div>
               </div>
               {/* Thermal Bloom Effect */}
