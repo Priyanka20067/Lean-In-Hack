@@ -4,7 +4,16 @@ import { useAuth } from '../context/AuthContext';
 
 export default function ProfilePage() {
     const { userData, userId } = useAuth();
+    const [reportCount, setReportCount] = React.useState(0);
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (userId) {
+            const { getAnomalyCountForUser } = import('../services/firestoreService').then(m => {
+                m.getAnomalyCountForUser(userId).then(setReportCount);
+            });
+        }
+    }, [userId]);
 
     return (
         <div className="container animate-fade">
@@ -26,21 +35,20 @@ export default function ProfilePage() {
                     </div>
 
                     <div style={{ flex: 1 }}>
-                        <h1 style={{ fontSize: '1.2rem', margin: 0, color: 'var(--color-text)' }}>{userData?.name || 'AGENT_NULL'}</h1>
+                        <h1 className="mono" style={{ fontSize: '1.2rem', margin: 0, color: 'var(--color-text)' }}>{userData?.name || 'AGENT_NULL'}</h1>
                         <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--color-secondary)', marginBottom: '0.5rem' }}>CLEARANCE: LEVEL_4</div>
-                        <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>UID: {userId?.substring(0, 12).toUpperCase()}</div>
-                        <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>MEMBER_SINCE: 1984_NOV</div>
+                        <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)', wordBreak: 'break-all' }}>UID: {userId?.toUpperCase()}</div>
                     </div>
                 </div>
 
                 <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                     <div>
                         <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>REPUTATION_SCORE</div>
-                        <div className="mono" style={{ fontSize: '1.2rem', color: 'var(--color-primary)' }}>{userData?.points || 0}</div>
+                        <div className="mono" style={{ fontSize: '1.2rem', color: 'var(--color-primary)' }}>{userData?.points || 0} PTS</div>
                     </div>
                     <div>
-                        <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>FIELD_MISSIONS</div>
-                        <div className="mono" style={{ fontSize: '1.2rem', color: 'var(--color-secondary)' }}>12</div>
+                        <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>FIELD_REPORTS</div>
+                        <div className="mono" style={{ fontSize: '1.2rem', color: 'var(--color-secondary)' }}>{reportCount}</div>
                     </div>
                     <div>
                         <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>SANITY_STATUS</div>
@@ -48,7 +56,7 @@ export default function ProfilePage() {
                     </div>
                     <div>
                         <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>INTEL_RATING</div>
-                        <div className="mono" style={{ fontSize: '0.8rem', color: 'var(--color-accent)' }}>MASTER</div>
+                        <div className="mono" style={{ fontSize: '0.8rem', color: 'var(--color-accent)' }}>OPERATIVE</div>
                     </div>
                 </div>
             </div>
