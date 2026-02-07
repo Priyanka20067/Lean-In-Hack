@@ -15,8 +15,11 @@ export default function DashboardPage() {
 
     const stats = {
         total: anomalies.length,
-        highUrgency: anomalies.filter(a => a.urgency === 'High').length,
-        paranormal: anomalies.filter(a => a.type === 'Paranormal').length,
+        open: anomalies.filter(a => a.status === 'open').length,
+        resolved: anomalies.filter(a => a.status === 'resolved').length,
+        government: anomalies.filter(a => (a.type || '').toLowerCase().includes('gov')).length,
+        health: anomalies.filter(a => (a.type || '').toLowerCase().includes('health')).length,
+        paranormal: anomalies.filter(a => (a.type || '').toLowerCase().includes('paranormal')).length,
         points: userData?.points || 0
     };
 
@@ -33,20 +36,22 @@ export default function DashboardPage() {
             {/* Stats Cluster */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
                 <div className="hud-border" style={{ padding: '1rem' }}>
-                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>DETECTION_INDEX</div>
+                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>TOTAL_SIGNATURES</div>
                     <div className="mono" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-primary)' }}>{stats.total}</div>
                 </div>
                 <div className="hud-border" style={{ padding: '1rem' }}>
-                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>CRITICAL_EVENTS</div>
-                    <div className="mono" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-danger)' }}>{stats.highUrgency}</div>
+                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>OPEN_VS_RESOLVED</div>
+                    <div className="mono" style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--color-danger)' }}>
+                        {stats.open} <span style={{ fontSize: '0.7rem', color: '#888' }}>/ {stats.resolved}</span>
+                    </div>
                 </div>
-                <div className="hud-border" style={{ padding: '1rem' }}>
-                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>GATE_SIGNATURES</div>
-                    <div className="mono" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-accent)' }}>{stats.paranormal}</div>
-                </div>
-                <div className="hud-border" style={{ padding: '1rem' }}>
-                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>AGENT_CREDITS</div>
-                    <div className="mono" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-secondary)' }}>{stats.points}</div>
+                <div className="hud-border" style={{ padding: '1rem', gridColumn: 'span 2' }}>
+                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)', marginBottom: '0.5rem' }}>THREAT_DISTRIBUTION</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem' }}>
+                        <div className="mono">GOVT: <span className="color-primary">{stats.government}</span></div>
+                        <div className="mono">HEALTH: <span className="color-danger">{stats.health}</span></div>
+                        <div className="mono">PARA: <span className="color-accent">{stats.paranormal}</span></div>
+                    </div>
                 </div>
             </div>
 
