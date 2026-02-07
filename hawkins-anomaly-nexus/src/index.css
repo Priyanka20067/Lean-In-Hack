@@ -1,0 +1,67 @@
+:root {
+  --color-bg-dark: #0a0a0a;
+  --color-bg-panel: #1a1a1a;
+  --color-primary: #ff0033; /* Demogorgon Red */
+  --color-primary-glow: rgba(255, 0, 51, 0.6);
+  --color-text-main: #e0e0e0;
+  --color-text-muted: #a0a0a0;
+  --font-heading: 'Courier New', Courier, monospace; /* Retro vibe */
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-main);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, button {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Utilities */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.glow-text {
+  text-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+.btn-primary {
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  padding: 12px 24px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary);
+  color: #000;
+  box-shadow: 0 0 20px var(--color-primary);
+}
+
+/* Background Effect (Mock Cracks) */
+.bg-cracks {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, transparent 0%, #000 90%), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M10 10 L30 30 M50 20 L20 80" stroke="%23330000" stroke-width="1"/></svg>');
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.3;
+}
