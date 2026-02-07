@@ -13,6 +13,9 @@ export default function ReportPage() {
     const [status, setStatus] = useState('');
     const [recentLogs, setRecentLogs] = useState([]);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [lastReportId, setLastReportId] = useState(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState(null);
 
     useEffect(() => {
         const handleStatusChange = () => {
@@ -45,33 +48,39 @@ export default function ReportPage() {
         if (!description.trim()) return;
 
         setStatus('[ ANALYZING DATA... ]');
+        setIsAnalyzing(true);
+
+        // Simulate AI "Thinking"
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
         const analysis = analyzeAnomaly(description);
+        setAnalysisResult(analysis);
+        setIsAnalyzing(false);
 
         const newAnomaly = {
             description,
             locationName: locationName || 'Unknown Sector',
             ...analysis,
             timestamp: Date.now(),
-            coordinates: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10 }
+            coordinates: { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10 },
+            status: 'open',
+            createdBy: userId
         };
 
         try {
-            await saveAnomalyLocally(newAnomaly);
+            const savedId = await saveAnomalyLocally(newAnomaly);
+            // Store the ID in state for the UI to use
+            setLastReportId(savedId);
 
             if (isOnline && userId) {
                 setStatus('[ SYNCING TO CENTRAL NODE... ]');
                 await syncPendingItems(userId);
+                const { incrementUserPoints } = await import('../services/firestoreService');
+                await incrementUserPoints(userId, 10);
             }
 
-            setStatus('[ TRANSMISSION SUCCESSFUL ]');
-            setDescription('');
-            setLocationName('');
+            setStatus('[ TRANSMISSION SUCCESSFUL (+10 PTS) ]');
             loadHistory();
-
-            setTimeout(() => {
-                navigate('/map');
-            }, 1500);
         } catch (e) {
             console.error(e);
             setStatus(`[ ERROR: ${e.message.toUpperCase()} ]`);
@@ -84,6 +93,62 @@ export default function ReportPage() {
             window.location.reload();
         }
     };
+
+    if (analysisResult) {
+        return (
+            <div className="container animate-fade">
+                <div className="bg-grid"></div>
+                <div className="hud-border" style={{ padding: '2rem', textAlign: 'center' }}>
+                    <h2 className="mono glitch" style={{ color: 'var(--color-primary)', marginBottom: '1rem' }}>AI ANALYSIS COMPLETE</h2>
+                    <div style={{
+                        padding: '1.5rem',
+                        background: 'rgba(0,0,0,0.5)',
+                        border: `2px solid ${analysisResult.color}`,
+                        marginBottom: '2rem'
+                    }}>
+                        <p className="mono" style={{ fontSize: '0.8rem', color: 'var(--color-text-dim)' }}>DETECTED FIELD:</p>
+                        <h1 className="mono" style={{ color: analysisResult.color, textShadow: `0 0 10px ${analysisResult.color}` }}>
+                            {analysisResult.type.toUpperCase()}
+                        </h1>
+                        <p className="mono" style={{ fontSize: '0.7rem', marginTop: '1rem', opacity: 0.8 }}>
+                            CONFIDENCE: {analysisResult.confidence}% | URGENCY: {analysisResult.urgency}
+                        </p>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {analysisResult.type === 'Government' && (
+                            <button onClick={() => navigate('/map')} className="btn-primary" style={{ width: '100%', border: `1px solid ${analysisResult.color}` }}>
+                                ACCESS GOVERNMENT MAP &rarr;
+                            </button>
+                        )}
+                        {analysisResult.type === 'Job' && (
+                            <button
+                                onClick={() => navigate(`/jobs/suggestion/${lastReportId}`, { state: { description: description } })}
+                                className="btn-primary"
+                                style={{ width: '100%', border: `1px solid ${analysisResult.color}` }}
+                            >
+                                VIEW JOB OPPORTUNITIES &rarr;
+                            </button>
+                        )}
+                        {analysisResult.type === 'Health Tech' && (
+                            <button onClick={() => navigate('/health')} className="btn-primary" style={{ width: '100%', border: `1px solid ${analysisResult.color}` }}>
+                                ACCESS HEALTHCARE SUPPORT &rarr;
+                            </button>
+                        )}
+
+                        <div style={{ opacity: 0.5, pointerEvents: 'none' }}>
+                            <button disabled className="btn-primary" style={{ width: '100%', filter: 'grayscale(1)', marginBottom: '0.5rem' }}>RESTRICTED ACCESS</button>
+                            <button disabled className="btn-primary" style={{ width: '100%', filter: 'grayscale(1)' }}>RESTRICTED ACCESS</button>
+                        </div>
+
+                        <button onClick={() => { setAnalysisResult(null); setDescription(''); setLocationName(''); setStatus(''); }} className="btn-primary" style={{ marginTop: '1rem', background: 'transparent', border: '1px solid var(--color-border)' }}>
+                            LOG ANOTHER ENTRY
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container animate-fade">
@@ -106,6 +171,21 @@ export default function ReportPage() {
             </div>
 
             <div className="hud-border" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
+                {isAnalyzing && (
+                    <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(0,0,0,0.8)',
+                        zIndex: 200,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <div className="loader-ah"></div>
+                        <p className="mono glitch" style={{ marginTop: '1rem', color: 'var(--color-primary)' }}>RUNNING GAIA_AI ANALYSIS...</p>
+                    </div>
+                )}
                 {/* Classified Stamp */}
                 <div style={{
                     position: 'absolute',
@@ -169,10 +249,10 @@ export default function ReportPage() {
                 ></textarea>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <button onClick={handleVoiceInput} className="btn-primary" style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-dim)', background: 'transparent', boxShadow: 'none' }}>
+                    <button onClick={handleVoiceInput} disabled={isAnalyzing} className="btn-primary" style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-dim)', background: 'transparent', boxShadow: 'none' }}>
                         🎤 AUDIO_FEED
                     </button>
-                    <button onClick={handleSubmit} className="btn-primary">
+                    <button onClick={handleSubmit} disabled={isAnalyzing} className="btn-primary">
                         TRANSMIT &rarr;
                     </button>
                 </div>
