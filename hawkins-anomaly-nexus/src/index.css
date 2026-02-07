@@ -271,3 +271,40 @@ code,
 .animate-fade {
   animation: fadeIn 0.8s ease forwards;
 }
+
+/* AI Analysis Loader */
+.loader-ah {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--color-primary);
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  box-shadow: var(--glow-primary);
+}
+
+.loader-ah::after {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-bottom-color: var(--color-accent);
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
