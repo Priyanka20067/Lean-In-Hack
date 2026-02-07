@@ -5,49 +5,46 @@ const DB_NAME = 'hanex-db';
 const STORE_ANOMALIES = 'anomalies';
 const STORE_PENDING = 'pending_sync';
 
-// Bumped version to 3 to ensure schema is fresh and correct
-const dbPromise = openDB(DB_NAME, 3, {
+// Bumped version to 4 to ensure schema is fresh and correct
+const dbPromise = openDB(DB_NAME, 4, {
     upgrade(db) {
-        if (!db.objectStoreNames.contains(STORE_ANOMALIES)) {
-            db.createObjectStore(STORE_ANOMALIES, { keyPath: 'id', autoIncrement: true });
+        if (db.objectStoreNames.contains(STORE_ANOMALIES)) {
+            db.deleteObjectStore(STORE_ANOMALIES);
         }
-        if (!db.objectStoreNames.contains(STORE_PENDING)) {
-            db.createObjectStore(STORE_PENDING, { keyPath: 'id', autoIncrement: true });
+        if (db.objectStoreNames.contains(STORE_PENDING)) {
+            db.deleteObjectStore(STORE_PENDING);
         }
+        db.createObjectStore(STORE_ANOMALIES, { keyPath: 'id', autoIncrement: true });
+        db.createObjectStore(STORE_PENDING, { keyPath: 'id', autoIncrement: true });
     },
 });
 
 export const saveAnomalyLocally = async (anomaly) => {
     const db = await dbPromise;
 
-    // Create a copy of data to avoid mutating the original passed object unexpectedly
-    const data = { ...anomaly };
+    // Create a copy and remove id to ensure auto-increment kicks in
+    const { id: _, ...data } = anomaly;
 
-    // Logic: 
-    // If the anomaly object already has an 'id', we are updating it -> use 'put'.
-    // If it does NOT have an 'id', we are creating it -> use 'add'. 
-    // 'add' will let the DB generate the ID via autoIncrement.
+    let localId;
 
-    let id;
-
-    if (data.id) {
-        // Update existing
-        await db.put(STORE_ANOMALIES, { ...data, syncStatus: 'pending' });
-        id = data.id;
+    if (anomaly.id) {
+        // Update existing (if it already has a valid ID)
+        await db.put(STORE_ANOMALIES, { ...anomaly, syncStatus: 'pending' });
+        localId = anomaly.id;
     } else {
         // Create new
-        id = await db.add(STORE_ANOMALIES, { ...data, syncStatus: 'pending' });
+        localId = await db.add(STORE_ANOMALIES, { ...data, syncStatus: 'pending' });
     }
 
-    // Add to pending queue with the confirmed ID (or just the data if we want to sync the *action*)
-    // For the queue, we want a unique ID for the queue item itself, so we use 'add' there too.
+    // Add to pending queue without the 'id' field to let it auto-increment its own key
     await db.add(STORE_PENDING, {
         ...data,
-        // If we just generated an ID, we might want to attach it so the sync knows "which" local item this refers to
-        localId: id,
+        localId: localId,
         type: 'CREATE_ANOMALY',
         timestamp: Date.now()
     });
+
+    return localId;
 };
 
 export const syncPendingItems = async (currentUserUid) => {
