@@ -21,6 +21,25 @@
   --color-border: #1e293b;
   /* Charcoal/Gunmetal */
 
+  /* SEMANTIC THEMES */
+  /* Government (Blue) */
+  --theme-gov-primary: #1E40AF;
+  --theme-gov-secondary: #0F0F0F;
+  --theme-gov-accent: #60A5FA;
+  --theme-gov-bg: linear-gradient(135deg, #0f172a, #1e3a8a);
+
+  /* Job/Recruitment (Purple) */
+  --theme-job-primary: #7C3AED;
+  --theme-job-secondary: #0A0A0A;
+  --theme-job-accent: #C4B5FD;
+  --theme-job-bg: linear-gradient(135deg, #0f0729, #4c1d95);
+
+  /* Health Tech (Green) */
+  --theme-health-primary: #059669;
+  --theme-health-secondary: #0F0F0F;
+  --theme-health-accent: #6EE7B7;
+  --theme-health-bg: linear-gradient(135deg, #064e3b, #0c1511);
+
   /* UI Tokens */
   --glow-primary: 0 0 10px rgba(0, 242, 255, 0.5);
   --glow-secondary: 0 0 10px rgba(0, 255, 127, 0.5);
