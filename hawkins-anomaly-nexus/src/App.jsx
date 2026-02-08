@@ -45,7 +45,9 @@ function App() {
                 {/* Job & Skill Module */}
                 <Route path="/jobs/suggestion/:anomalyId" element={<JobSuggestionPage />} />
                 <Route path="/jobs/learning/:anomalyId" element={<LearningPathPage />} />
+                <Route path="/jobs/challenge/:anomalyId/:skill" element={<ChallengePage />} />
                 <Route path="/jobs/challenge/:skill" element={<ChallengePage />} />
+                <Route path="/jobs/interview/:anomalyId/:role" element={<InterviewPage />} />
                 <Route path="/jobs/interview/:role" element={<InterviewPage />} />
                 <Route path="/profile/skills" element={<SkillProfilePage />} />
             </Routes>
