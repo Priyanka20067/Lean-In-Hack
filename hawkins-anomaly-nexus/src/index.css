@@ -1,50 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto:wght@400;500;700&display=swap');
 
 :root {
-  /* Core Palette */
-  --color-bg-dark: #020408;
-  /* Midnight Black */
-  --color-bg-navy: #0a1128;
-  /* Deep Navy */
-  --color-primary: #00f2ff;
-  /* Electric Cyan */
-  --color-secondary: #00ff7f;
-  /* Neon Green */
-  --color-accent: #ff2a6d;
-  /* Hot Pink / Accent */
-  --color-danger: #fe0000;
-  /* Blood Red */
-  --color-text: #e0e6ed;
-  /* Bright White */
+  /* Modern Core Palette */
+  --color-bg-dark: #0f172a;
+  --color-text: #f8fafc;
   --color-text-dim: #94a3b8;
-  /* Silver / Gray */
-  --color-border: #1e293b;
-  /* Charcoal/Gunmetal */
 
-  /* SEMANTIC THEMES */
-  /* Government (Blue) */
-  --theme-gov-primary: #1E40AF;
-  --theme-gov-secondary: #0F0F0F;
-  --theme-gov-accent: #60A5FA;
-  --theme-gov-bg: linear-gradient(135deg, #0f172a, #1e3a8a);
-
-  /* Job/Recruitment (Purple) */
-  --theme-job-primary: #7C3AED;
-  --theme-job-secondary: #0A0A0A;
-  --theme-job-accent: #C4B5FD;
-  --theme-job-bg: linear-gradient(135deg, #0f0729, #4c1d95);
-
-  /* Health Tech (Green) */
-  --theme-health-primary: #059669;
-  --theme-health-secondary: #0F0F0F;
-  --theme-health-accent: #6EE7B7;
-  --theme-health-bg: linear-gradient(135deg, #064e3b, #0c1511);
+  /* Sector Themes */
+  --theme-gov: #3b82f6;
+  /* Blue */
+  --theme-job: #8b5cf6;
+  /* Purple */
+  --theme-health: #10b981;
+  /* Emerald */
 
   /* UI Tokens */
-  --glow-primary: 0 0 10px rgba(0, 242, 255, 0.5);
-  --glow-secondary: 0 0 10px rgba(0, 255, 127, 0.5);
-  --glow-danger: 0 0 10px rgba(254, 0, 0, 0.5);
-  --transition-speed: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -53,277 +26,119 @@
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   background-color: var(--color-bg-dark);
   color: var(--color-text);
   line-height: 1.6;
   overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
 }
 
 h1,
 h2,
-h3,
-h4,
-h5,
-h6 {
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-weight: 800;
-  color: var(--color-text);
+h3 {
+  font-family: 'Roboto', sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 700;
 }
 
-code,
-.mono {
-  font-family: 'JetBrains Mono', monospace;
-}
-
-/* Base Container */
 .container {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   min-height: 100vh;
   position: relative;
+  z-index: 1;
+  /* Above 3D Canvas */
 }
 
-/* HUD & Borders */
-.hud-border {
-  border: 1px solid var(--color-border);
-  position: relative;
-  background: rgba(10, 17, 40, 0.4);
-  backdrop-filter: blur(10px);
+/* Glassmorphism Card */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  padding: 2rem;
+  transition: transform 0.3s ease;
 }
 
-.hud-border::before,
-.hud-border::after {
-  content: '';
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border: 2px solid var(--color-primary);
-}
-
-.hud-border::before {
-  top: -1px;
-  left: -1px;
-  border-right: none;
-  border-bottom: none;
-}
-
-.hud-border::after {
-  bottom: -1px;
-  right: -1px;
-  border-left: none;
-  border-top: none;
+.glass-panel:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Buttons */
-.btn-primary {
-  background: transparent;
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
-  padding: 0.75rem 1.5rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  transition: all var(--transition-speed);
-  box-shadow: var(--glow-primary);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-primary:hover {
-  background: var(--color-primary);
-  color: var(--color-bg-dark);
-  box-shadow: 0 0 20px var(--color-primary);
-  transform: translateY(-2px);
-}
-
-.btn-danger {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
-  box-shadow: var(--glow-danger);
-}
-
-.btn-danger:hover {
-  background: var(--color-danger);
+.btn-3d {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  border: 1px solid var(--glass-border);
+  padding: 1rem 2rem;
   color: white;
-  box-shadow: 0 0 20px var(--color-danger);
-}
-
-/* Layout Utilities */
-.flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Glitch Effect */
-.glitch {
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
   position: relative;
-  animation: glitch-skew 1s infinite linear alternate-reverse;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.glitch::before,
-.glitch::after {
-  content: attr(data-text);
+.btn-3d::before {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
 }
 
-.glitch::before {
-  left: 2px;
-  text-shadow: -2px 0 var(--color-accent);
-  clip: rect(44px, 450px, 56px, 0);
-  animation: glitch-anim 5s infinite linear alternate-reverse;
+.btn-3d:hover::before {
+  transform: translateX(100%);
 }
 
-.glitch::after {
-  left: -2px;
-  text-shadow: -2px 0 var(--color-primary);
-  clip: rect(44px, 450px, 56px, 0);
-  animation: glitch-anim2 5s infinite linear alternate-reverse;
-}
-
-@keyframes glitch-anim {
-  0% {
-    clip: rect(31px, 9999px, 94px, 0);
-  }
-
-  20% {
-    clip: rect(62px, 9999px, 81px, 0);
-  }
-
-  /* ... more frames ... */
-  100% {
-    clip: rect(10px, 9999px, 29px, 0);
-  }
-}
-
-@keyframes glitch-anim2 {
-  0% {
-    clip: rect(65px, 9999px, 100px, 0);
-  }
-
-  /* ... more frames ... */
-  100% {
-    clip: rect(2px, 9999px, 51px, 0);
-  }
-}
-
-@keyframes glitch-skew {
-  0% {
-    transform: skew(4deg);
-  }
-
-  10% {
-    transform: skew(-4deg);
-  }
-
-  /* ... */
-  100% {
-    transform: skew(0deg);
-  }
-}
-
-/* Background Effects */
-.bg-scanlines {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%,
-      rgba(0, 0, 0, 0.25) 50%);
-  background-size: 100% 4px;
-  z-index: 1000;
-  pointer-events: none;
-  opacity: 0.15;
-}
-
-.bg-grid {
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(30, 41, 59, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 41, 59, 0.1) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Scrollbar Customization */
-::-webkit-scrollbar {
-  width: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-bg-dark);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: 10px;
+.btn-3d:hover {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-fade {
+  animation: fadeIn 1s ease forwards;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-.animate-fade {
-  animation: fadeIn 0.8s ease forwards;
-}
-
-/* AI Analysis Loader */
-.loader-ah {
-  width: 48px;
-  height: 48px;
-  border: 3px solid var(--color-primary);
-  border-radius: 50%;
-  display: inline-block;
-  position: relative;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-  box-shadow: var(--glow-primary);
-}
-
-.loader-ah::after {
-  content: '';
-  box-sizing: border-box;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 3px solid transparent;
-  border-bottom-color: var(--color-accent);
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
   }
 }
