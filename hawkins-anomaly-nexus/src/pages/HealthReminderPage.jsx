@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { saveReminder, getReminders } from '../services/healthService';
+import Scene3D from '../components/Scene3D';
 
 export default function HealthReminderPage() {
     const navigate = useNavigate();
@@ -35,128 +36,118 @@ export default function HealthReminderPage() {
             setDate('');
             loadReminders();
         } catch (e) {
-            alert("Error saving reminder: " + e.message);
+            console.error("Error saving reminder:", e);
+            alert("Protocol failure: Unable to sync reminder.");
         } finally {
             setIsSaving(false);
         }
     };
 
     return (
-        <div className="container animate-fade" style={{ backgroundColor: '#f0f4f8', color: '#1a202c', minHeight: '100vh', padding: '1.5rem' }}>
-            <header style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                <h1 style={{ color: '#2d3748', fontSize: '1.5rem', textTransform: 'none', letterSpacing: 'normal' }}>Health Reminders</h1>
-                <p style={{ color: '#4a5568', fontSize: '0.9rem' }}>Never miss a follow-up or medicine.</p>
-            </header>
+        <>
+            <Scene3D variant="health" />
+            <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '2rem' }}>
 
-            {/* Entry Form */}
-            <form onSubmit={handleAddReminder} style={{
-                background: 'white',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                marginBottom: '2rem',
-                display: 'grid',
-                gap: '1rem'
-            }}>
-                <h2 style={{ fontSize: '0.9rem', color: '#718096', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Add New Reminder</h2>
+                <header style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
+                    <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', background: 'linear-gradient(to right, white, var(--theme-health))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                        BIO-CHRONO TRACKER
+                    </h1>
+                    <p style={{ color: '#94a3b8' }}>Schedule medical interventions and follow-up scans.</p>
+                </header>
 
-                <div>
-                    <label style={{ fontSize: '0.75rem', color: '#4a5568', fontWeight: 'bold' }}>REMINDER FOR:</label>
-                    <input
-                        type="text"
-                        placeholder="e.g. Morning Medicine, Dr. Visit..."
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e0', marginTop: '0.25rem', outline: 'none' }}
-                        required
-                    />
-                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', maxWidth: '1000px', width: '100%', margin: '0 auto' }}>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div>
-                        <label style={{ fontSize: '0.75rem', color: '#4a5568', fontWeight: 'bold' }}>DATE:</label>
-                        <input
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e0', marginTop: '0.25rem', outline: 'none' }}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label style={{ fontSize: '0.75rem', color: '#4a5568', fontWeight: 'bold' }}>TIME:</label>
-                        <input
-                            type="time"
-                            value={time}
-                            onChange={(e) => setTime(e.target.value)}
-                            style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #cbd5e0', marginTop: '0.25rem', outline: 'none' }}
-                            required
-                        />
-                    </div>
-                </div>
-
-                <button
-                    type="submit"
-                    disabled={isSaving}
-                    style={{
-                        width: '100%',
-                        padding: '1rem',
-                        background: '#38a169',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        marginTop: '0.5rem'
-                    }}
-                >
-                    {isSaving ? 'Saving...' : 'Set Reminder'}
-                </button>
-            </form>
-
-            {/* List */}
-            <div>
-                <h2 style={{ fontSize: '0.9rem', color: '#718096', textTransform: 'uppercase', marginBottom: '1rem' }}>Active Reminders</h2>
-                <div style={{ display: 'grid', gap: '0.75rem' }}>
-                    {reminders.map((r, i) => (
-                        <div key={i} style={{
-                            background: 'white',
-                            padding: '1rem',
-                            borderRadius: '8px',
-                            borderLeft: '4px solid #38a169',
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}>
+                    {/* Entry Form */}
+                    <div className="glass-panel" style={{ height: 'fit-content' }}>
+                        <h2 style={{ fontSize: '0.9rem', color: 'var(--theme-health)', textTransform: 'uppercase', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
+                            Initialize Reminder
+                        </h2>
+                        <form onSubmit={handleAddReminder} style={{ display: 'grid', gap: '1.25rem' }}>
                             <div>
-                                <div style={{ fontWeight: 'bold', color: '#2d3748' }}>{r.title}</div>
-                                <div style={{ fontSize: '0.7rem', color: '#718096' }}>{new Date(r.date).toLocaleDateString()} at {r.time}</div>
+                                <label style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>INTERVENTION NAME</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Bio-medication A"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', outline: 'none' }}
+                                    required
+                                />
                             </div>
-                            <div style={{ fontSize: '1.2rem' }}>🕒</div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>DATE</label>
+                                    <input
+                                        type="date"
+                                        value={date}
+                                        onChange={(e) => setDate(e.target.value)}
+                                        style={{ width: '100%', padding: '0.8rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', outline: 'none' }}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>TIME</label>
+                                    <input
+                                        type="time"
+                                        value={time}
+                                        onChange={(e) => setTime(e.target.value)}
+                                        style={{ width: '100%', padding: '0.8rem', borderRadius: '6px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', outline: 'none' }}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isSaving}
+                                className="btn-3d"
+                                style={{ background: 'var(--theme-health)', borderColor: 'var(--theme-health)', marginTop: '0.5rem' }}
+                            >
+                                {isSaving ? 'UPLOADING...' : 'COMMIT TO SCHEDULE'}
+                            </button>
+                        </form>
+                    </div>
+
+                    {/* Active Reminders */}
+                    <div>
+                        <h2 style={{ fontSize: '0.9rem', color: 'var(--theme-health)', textTransform: 'uppercase', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
+                            Active Protocols
+                        </h2>
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            {reminders.map((r, i) => (
+                                <div key={i} className="glass-panel" style={{
+                                    padding: '1.25rem',
+                                    borderLeft: '4px solid var(--theme-health)',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    background: 'rgba(30, 41, 59, 0.4)'
+                                }}>
+                                    <div>
+                                        <div style={{ fontWeight: 'bold', color: 'white' }}>{r.title}</div>
+                                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                                            {new Date(r.date).toLocaleDateString()} • {r.time}
+                                        </div>
+                                    </div>
+                                    <div style={{ fontSize: '1.2rem', opacity: 0.5 }}>🕒</div>
+                                </div>
+                            ))}
+                            {reminders.length === 0 && (
+                                <div className="glass-panel" style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
+                                    <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>No scheduled interventions found.</p>
+                                </div>
+                            )}
                         </div>
-                    ))}
-                    {reminders.length === 0 && (
-                        <p style={{ textAlign: 'center', color: '#a0aec0', fontSize: '0.8rem', padding: '2rem' }}>No reminders set.</p>
-                    )}
+                    </div>
+                </div>
+
+                <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+                    <button onClick={() => navigate('/health')} className="btn-3d">
+                        RETURN TO BIO-HUB
+                    </button>
                 </div>
             </div>
-
-            <button
-                onClick={() => navigate('/health')}
-                style={{
-                    marginTop: '2rem',
-                    width: '100%',
-                    padding: '1rem',
-                    background: 'transparent',
-                    border: '1px solid #cbd5e0',
-                    borderRadius: '8px',
-                    color: '#718096',
-                    cursor: 'pointer'
-                }}
-            >
-                Back to Health Menu
-            </button>
-        </div>
+        </>
     );
 }

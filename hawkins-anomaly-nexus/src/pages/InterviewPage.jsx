@@ -1,24 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { saveInterviewScore, getInterviewQuestions } from '../services/jobService';
+import { saveInterviewScore } from '../services/jobService';
 import { useAuth } from '../context/AuthContext';
-
-const DEFAULT_QUESTIONS = {
-    'Frontend Developer': [
-        { q: "Explain the Virtual DOM in React.", keywords: ['diffing', 'reconciliation', 'browser', 'performance', 'copy'] },
-        { q: "What is the difference between state and props?", keywords: ['mutable', 'immutable', 'parent', 'component', 'data'] },
-        { q: "How do you handle side effects in functional components?", keywords: ['useEffect', 'lifecycle', 'api', 'clean'] }
-    ],
-    'Backend Developer': [
-        { q: "Explain the event loop in Node.js.", keywords: ['single-threaded', 'callback', 'queue', 'blocking', 'async'] },
-        { q: "What is RESTful API design?", keywords: ['resource', 'http', 'stateless', 'crud', 'json'] },
-        { q: "Difference between SQL and NoSQL?", keywords: ['schema', 'relational', 'document', 'scaling', 'flexibility'] }
-    ],
-    'Data Analyst': [
-        { q: "What is the difference between Inner Join and Outer Join?", keywords: ['match', 'records', 'table', 'combine', 'null'] },
-        { q: "Explain p-value in statistics.", keywords: ['hypothesis', 'significance', 'probability', 'null', 'reject'] }
-    ]
-};
+import Scene3D from '../components/Scene3D';
 
 export default function InterviewPage() {
     const { role, anomalyId } = useParams();
@@ -35,22 +19,8 @@ export default function InterviewPage() {
 
     useEffect(() => {
         const initInterview = async () => {
-            // 1. Fetch Anomaly Details for Context
             let desc = '';
-            let questions = [];
-
             if (anomalyId) {
-                const { getJobSuggestion } = await import('../services/jobService'); // Dynamic import to avoid cycles if any
-                // Actually jobService.js -> getJobSuggestion is for suggestions, we need the original anomaly
-                // But wait, the anomaly text was saved in 'anomalies' collection? 
-                // Let's assume we can pass it or fetch it.
-                // For now, let's use a simpler approach: 
-                // We will use the 'AI' service to generate questions based on the role and a simulated context if we can't fetch easily.
-                // BUT, the goal is "realated question".
-                // Let's try to fetch the suggestion which usually has the 'reason' or the original text?
-                // Actually report saving: `addDoc(collection(db, 'anomalies'), ...)`
-                // So we can fetch from 'anomalies'.
-
                 try {
                     const { doc, getDoc } = await import('firebase/firestore');
                     const { db } = await import('../services/firebase');
@@ -65,7 +35,6 @@ export default function InterviewPage() {
                 }
             }
 
-            // 2. Generate Questions
             const { generateInterviewQuestions } = await import('../services/ai');
             const generatedQs = generateInterviewQuestions(role, desc);
             setQuestions(generatedQs);
@@ -77,7 +46,6 @@ export default function InterviewPage() {
     const handleNext = async () => {
         if (!answer.trim()) return;
 
-        // Scoring Logic: +20 pts per keyword match
         const currentQ = questions[currentQIndex];
         const lowerAnswer = answer.toLowerCase();
         let qScore = 0;
@@ -88,7 +56,6 @@ export default function InterviewPage() {
             }
         });
 
-        // Cap at 100, ensure min 10 for effort
         qScore = Math.min(Math.max(qScore, 10), 100);
 
         const newScores = [...scores, qScore];
@@ -98,14 +65,10 @@ export default function InterviewPage() {
         if (currentQIndex < questions.length - 1) {
             setCurrentQIndex(prev => prev + 1);
         } else {
-            // Finish
             setFinished(true);
             setIsSaving(true);
-
-            // Calculate Average
             const totalScore = newScores.reduce((a, b) => a + b, 0);
             const avgScore = Math.round(totalScore / newScores.length);
-
             if (userId) {
                 await saveInterviewScore(userId, role, avgScore);
             }
@@ -121,120 +84,111 @@ export default function InterviewPage() {
     if (finished) {
         const avg = getAverageScore();
         return (
-            <div className="container animate-fade" style={{ background: '#0f172a', minHeight: '100vh', padding: '2rem', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ fontSize: '1rem', color: '#94a3b8', letterSpacing: '2px', marginBottom: '1rem' }}>INTERVIEW COMPLETE</div>
-                <h1 style={{ fontSize: '3rem', color: avg >= 70 ? '#10b981' : '#f59e0b', textShadow: '0 0 20px rgba(255,255,255,0.1)' }}>
-                    {avg}% SCORE
-                </h1>
-                <p style={{ color: '#cbd5e1', marginBottom: '2rem', textAlign: 'center', maxWidth: '400px' }}>
-                    {avg >= 70 ? "Excellent technical proficiency detected. You are ready for field deployment." : "Additional training recommended based on response patterns."}
-                </p>
-
-                <div style={{ display: 'grid', gap: '1rem', width: '100%', maxWidth: '300px' }}>
-                    <button
-                        onClick={() => navigate('/profile/skills')}
-                        className="btn-primary"
-                        style={{
-                            background: '#38bdf8',
-                            color: '#0f172a',
-                            border: 'none',
-                            padding: '1rem',
-                            borderRadius: '4px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        VIEW SKILL PROFILE
-                    </button>
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        style={{
-                            background: 'transparent',
-                            color: '#94a3b8',
-                            border: '1px solid #334155',
-                            padding: '1rem',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        RETURN TO DASHBOARD
-                    </button>
+            <>
+                <Scene3D variant="job" />
+                <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', padding: '2rem' }}>
+                    <div className="glass-panel" style={{ maxWidth: '500px', width: '100%', textAlign: 'center', borderTop: avg >= 70 ? '4px solid #10b981' : '4px solid #f59e0b' }}>
+                        <div style={{ fontSize: '0.8rem', color: '#94a3b8', letterSpacing: '2px', marginBottom: '1rem', fontWeight: 'bold' }}>SIMULATION TERMINATED</div>
+                        <h1 style={{ fontSize: '3.5rem', color: 'white', marginBottom: '0.5rem' }}>{avg}%</h1>
+                        <div style={{ fontSize: '1.2rem', color: avg >= 70 ? '#10b981' : '#f59e0b', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+                            {avg >= 70 ? "PROFICIENCY VERIFIED" : "INSUFFICIENT KNOWLEDGE"}
+                        </div>
+                        <p style={{ color: '#cbd5e1', marginBottom: '2.5rem' }}>
+                            {avg >= 70
+                                ? "Your neural response patterns match the required profile for field deployment."
+                                : "Response analysis indicates gaps in core technical sectors. Recalibration required."}
+                        </p>
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            <button onClick={() => navigate('/profile/skills')} className="btn-3d" style={{ background: 'var(--theme-job)', borderColor: 'var(--theme-job)' }}>
+                                OPEN SKILL PROFILE
+                            </button>
+                            <button onClick={() => navigate('/dashboard')} className="btn-3d" style={{ opacity: 0.6 }}>
+                                RETURN TO HUB
+                            </button>
+                        </div>
+                    </div>
                 </div>
+            </>
+        );
+    }
+
+    if (questions.length === 0) {
+        return (
+            <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0f172a' }}>
+                <div className="animate-pulse" style={{ color: 'var(--theme-job)', fontWeight: 'bold' }}>INITIALIZING INTERVIEW NEURAL-LINK...</div>
             </div>
         );
     }
 
-    if (questions.length === 0) return <div>Loading interview protocols...</div>;
-
     return (
-        <div className="container animate-fade" style={{ background: '#0f172a', minHeight: '100vh', padding: '2rem', color: 'white' }}>
-            <div className="bg-grid" style={{ opacity: 0.1 }}></div>
+        <>
+            <Scene3D variant="job" />
+            <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '2rem' }}>
 
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-                <div>
-                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', letterSpacing: '1px' }}>MOCK INTERVIEW SESSION</div>
-                    <h1 style={{ fontSize: '1.5rem', color: 'white' }}>{role}</h1>
-                </div>
-                <div style={{ fontSize: '0.9rem', color: '#38bdf8' }}>
-                    Q{currentQIndex + 1} / {questions.length}
-                </div>
-            </header>
+                <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--theme-job)', letterSpacing: '2px', fontWeight: 'bold' }}>AI-DRIVEN EVALUATION</div>
+                        <h1 style={{ fontSize: '2rem', color: 'white' }}>{role}</h1>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '0.5rem 1.5rem', border: '1px solid var(--theme-job)', color: 'white', fontWeight: 'bold' }}>
+                        NODE {currentQIndex + 1} / {questions.length}
+                    </div>
+                </header>
 
-            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                <div style={{ background: 'rgba(30, 41, 59, 0.5)', padding: '2rem', borderRadius: '8px', border: '1px solid #334155', marginBottom: '2rem' }}>
-                    <h2 style={{ fontSize: '1.2rem', color: '#e2e8f0', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-                        {questions[currentQIndex].q}
-                    </h2>
+                <div style={{ maxWidth: '900px', width: '100%', margin: '0 auto' }}>
+                    <div className="glass-panel" style={{ padding: '2.5rem', marginBottom: '2rem', background: 'rgba(30, 41, 59, 0.4)' }}>
+                        <h2 style={{ fontSize: '1.4rem', color: 'white', marginBottom: '2rem', lineHeight: '1.6', borderLeft: '4px solid var(--theme-job)', paddingLeft: '1.5rem' }}>
+                            {questions[currentQIndex].q}
+                        </h2>
 
-                    <textarea
-                        value={answer}
-                        onChange={(e) => setAnswer(e.target.value)}
-                        placeholder="Type your answer here..."
+                        <div style={{ position: 'relative' }}>
+                            <textarea
+                                value={answer}
+                                onChange={(e) => setAnswer(e.target.value)}
+                                placeholder="Submit your multi-layered response..."
+                                style={{
+                                    width: '100%',
+                                    minHeight: '200px',
+                                    background: 'rgba(0,0,0,0.3)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    borderRadius: '8px',
+                                    padding: '1.5rem',
+                                    color: '#cbd5e1',
+                                    fontSize: '1.1rem',
+                                    fontFamily: 'monospace',
+                                    resize: 'none',
+                                    outline: 'none',
+                                    lineHeight: '1.6'
+                                }}
+                            />
+                            <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', fontSize: '0.7rem', color: '#64748b' }}>
+                                ENCRYPTED_STREAM_ACTIVE
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleNext}
+                        disabled={!answer.trim()}
+                        className="btn-3d"
                         style={{
                             width: '100%',
-                            minHeight: '150px',
-                            background: '#0f172a',
-                            border: '1px solid #334155',
-                            borderRadius: '4px',
-                            padding: '1rem',
-                            color: 'white',
-                            fontSize: '1rem',
-                            resize: 'vertical',
-                            outline: 'none',
-                            marginBottom: '1rem'
+                            background: answer.trim() ? 'var(--theme-job)' : 'transparent',
+                            borderColor: answer.trim() ? 'var(--theme-job)' : 'rgba(255,255,255,0.1)',
+                            color: answer.trim() ? 'white' : '#475569',
+                            fontSize: '1.1rem'
                         }}
-                    />
+                    >
+                        {currentQIndex === questions.length - 1 ? 'TERMINATE & EVALUATE' : 'UPLOAD RESPONSE & NEXT NODE'}
+                    </button>
 
-                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontStyle: 'italic' }}>
-                        * Keywords are analyzed for scoring. Be specific.
+                    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                        <span style={{ fontSize: '0.7rem', color: '#475569', background: 'rgba(255,255,255,0.03)', padding: '4px 12px', borderRadius: '4px' }}>
+                            NEURAL ANALYZER: KEYWORD_EXTRACTION_PROTOCOL_ENABLED
+                        </span>
                     </div>
                 </div>
-
-                <button
-                    onClick={handleNext}
-                    disabled={!answer.trim()}
-                    style={{
-                        width: '100%',
-                        padding: '1.25rem',
-                        background: answer.trim() ? '#38bdf8' : '#1e293b',
-                        color: answer.trim() ? '#0f172a' : '#475569',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontWeight: 'bold',
-                        fontSize: '1rem',
-                        cursor: answer.trim() ? 'pointer' : 'not-allowed',
-                        transition: 'background 0.2s'
-                    }}
-                >
-                    {currentQIndex === questions.length - 1 ? 'FINISH INTERVIEW' : 'NEXT QUESTION &rarr;'}
-                </button>
             </div>
-
-            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-                <p style={{ fontSize: '0.75rem', color: '#4a5568', fontStyle: 'italic', background: '#1e293b', padding: '0.5rem', display: 'inline-block', borderRadius: '4px' }}>
-                    DISCLAIMER: This is a simulation for practice purposes only.
-                </p>
-            </div>
-        </div>
+        </>
     );
 }
