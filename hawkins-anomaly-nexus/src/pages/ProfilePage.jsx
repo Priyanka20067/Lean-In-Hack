@@ -76,6 +76,11 @@ export default function ProfilePage() {
                 <button onClick={() => navigate('/map')} className="btn-primary" style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-dim)', boxShadow: 'none' }}>MAP_VIEW</button>
             </div>
 
+            <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+                <button onClick={() => navigate('/health/log')} className="mono" style={{ flex: 1, padding: '1rem', background: 'rgba(5, 150, 105, 0.1)', border: '1px solid #059669', color: '#34d399', cursor: 'pointer' }}>MEDICAL_LOGS</button>
+                <button onClick={() => navigate('/profile/skills')} className="mono" style={{ flex: 1, padding: '1rem', background: 'rgba(124, 58, 237, 0.1)', border: '1px solid #7c3aed', color: '#a78bfa', cursor: 'pointer' }}>SKILL_DOSSIER</button>
+            </div>
+
             <style>{`
         @keyframes scan-line {
           0% { transform: translateY(0); }
