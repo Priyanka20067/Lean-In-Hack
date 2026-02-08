@@ -45,28 +45,39 @@ export default function RoomPage() {
     };
 
     return (
-        <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '1rem' }}>
+        <div className="container animate-fade" style={{
+            '--color-primary': 'var(--theme-gov-primary)',
+            '--color-secondary': 'var(--theme-gov-secondary)',
+            '--color-accent': 'var(--theme-gov-accent)',
+            '--color-bg-dark': 'var(--theme-gov-bg)', // Use the gradient
+            background: 'var(--theme-gov-bg)',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100vh',
+            padding: '1rem',
+            color: 'white'
+        }}>
             <div className="bg-grid" style={{ opacity: 0.1 }}></div>
             <div className="bg-scanlines"></div>
 
             {/* Tactical Header */}
-            <div className="hud-border" style={{ padding: '1rem', marginBottom: '1rem', background: 'rgba(10, 17, 40, 0.8)' }}>
+            <div className="hud-border" style={{ padding: '1rem', marginBottom: '1rem', background: 'rgba(15, 23, 42, 0.8)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                     <h2 className="mono" style={{ fontSize: '0.9rem', color: 'var(--color-primary)', margin: 0 }}>
-                        ENCRYPTED_CHANNEL::{id.substring(0, 8).toUpperCase()}
+                        SECURE_CHANNEL::{id.substring(0, 8).toUpperCase()}
                     </h2>
                     <div style={{ display: 'flex', gap: '1rem' }}>
                         <button onClick={() => navigate(`/resolve/${id}`)} className="mono" style={{ background: 'var(--color-danger)', border: 'none', color: 'white', fontSize: '0.6rem', cursor: 'pointer', padding: '0.2rem 0.5rem', borderRadius: '2px' }}>
                             [ RESOLVE_PROTOCOL ]
                         </button>
-                        <button onClick={() => navigate('/map')} className="mono" style={{ background: 'none', border: 'none', color: 'var(--color-text-dim)', fontSize: '0.6rem', cursor: 'pointer' }}>
+                        <button onClick={() => navigate('/map')} className="mono" style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.6rem', cursor: 'pointer' }}>
                             [ RETURN_TO_MAP ]
                         </button>
                     </div>
                 </div>
-                <div className="mono" style={{ fontSize: '0.6rem', display: 'flex', gap: '1rem', color: 'var(--color-secondary)' }}>
+                <div className="mono" style={{ fontSize: '0.6rem', display: 'flex', gap: '1rem', color: '#64748b' }}>
                     <span>NODE: HAWKINS_CENTRAL</span>
-                    <span>SECURITY: LEVEL_4_ENCRYPTION</span>
+                    <span>ENCRYPTION: AES-256</span>
                     <span className="blink" style={{ color: 'var(--color-accent)' }}>● LIVE_FEED</span>
                 </div>
             </div>
@@ -89,56 +100,54 @@ export default function RoomPage() {
                     }}>
                         <div className="mono" style={{
                             fontSize: '0.55rem',
-                            color: 'var(--color-text-dim)',
+                            color: '#94a3b8',
                             marginBottom: '2px',
                             textAlign: msg.senderId === userId ? 'right' : 'left'
                         }}>
                             [{new Date(msg.timestamp).toLocaleTimeString()}] {msg.senderName}
                         </div>
                         <div style={{
-                            background: msg.senderId === userId ? 'rgba(0, 242, 255, 0.1)' : 'rgba(30, 41, 59, 0.4)',
+                            background: msg.senderId === userId ? 'rgba(30, 58, 138, 0.3)' : 'rgba(30, 41, 59, 0.4)',
                             border: `1px solid ${msg.senderId === userId ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                            padding: '0.8rem 1rem',
-                            color: 'var(--color-text)',
-                            fontSize: '0.85rem',
-                            position: 'relative',
-                            borderRadius: '2px'
+                            padding: '0.75rem',
+                            color: 'white',
+                            fontSize: '0.9rem',
+                            borderTopRightRadius: msg.senderId === userId ? '0' : '8px',
+                            borderTopLeftRadius: msg.senderId === userId ? '8px' : '0',
+                            borderBottomRightRadius: '8px',
+                            borderBottomLeftRadius: '8px',
+                            boxShadow: msg.senderId === userId ? '0 0 10px rgba(30, 64, 175, 0.2)' : 'none'
                         }}>
                             {msg.text}
                         </div>
                     </div>
                 ))}
-                <div ref={chatEndRef} />
+                <div ref={chatEndRef}></div>
             </div>
 
-            {/* Input Module */}
-            <form onSubmit={handleSend} className="hud-border" style={{
-                background: 'rgba(10, 17, 40, 0.9)',
-                padding: '1rem',
-                display: 'flex',
-                gap: '1rem',
-                alignItems: 'center'
-            }}>
-                <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-primary)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
-                    INTEL_FEED
-                </div>
+            {/* Input Area */}
+            <form onSubmit={handleSend} style={{ display: 'flex', gap: '1rem' }}>
                 <input
                     type="text"
-                    className="mono"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="ENTER_ENCRYPTED_MESSAGE..."
+                    placeholder="Enter command or message..."
                     style={{
                         flex: 1,
-                        background: 'rgba(0,0,0,0.5)',
+                        background: 'rgba(15, 23, 42, 0.8)',
                         border: '1px solid var(--color-border)',
-                        color: 'var(--color-text)',
-                        padding: '0.75rem',
-                        outline: 'none',
-                        fontSize: '0.8rem'
+                        padding: '1rem',
+                        color: 'white',
+                        fontFamily: 'monospace',
+                        outline: 'none'
                     }}
                 />
-                <button type="submit" className="btn-primary" style={{ padding: '0.75rem 1rem' }}>
+                <button type="submit" className="btn-primary" style={{
+                    background: 'var(--color-primary)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0 2rem'
+                }}>
                     SEND
                 </button>
             </form>
