@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subscribeToAnomalies } from '../services/firestoreService';
 import { useAuth } from '../context/AuthContext';
+import Scene3D from '../components/Scene3D';
 
 export default function DashboardPage() {
     const [anomalies, setAnomalies] = useState([]);
@@ -24,74 +25,95 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="container animate-fade">
-            <div className="bg-grid" style={{ opacity: 0.1 }}></div>
-            <div className="bg-scanlines"></div>
+        <>
+            <Scene3D variant="gov" />
+            <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '2rem' }}>
 
-            <header style={{ marginBottom: '2rem' }}>
-                <h2 className="mono" style={{ color: 'var(--color-primary)', letterSpacing: '0.4em' }}>COMMAND_CENTER</h2>
-                <p className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>CENTRAL_INTELLIGENCE_NODE: HAWKINS</p>
-            </header>
+                <header style={{ marginBottom: '3rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                        <div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--theme-gov)', letterSpacing: '4px', fontWeight: 'bold' }}>HAWKINS CENTRAL COMMAND</div>
+                            <h1 style={{ fontSize: '2.5rem', color: 'white', marginBottom: '0.5rem' }}>DASHBOARD_VIRTUALIZATION</h1>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.7rem', color: '#64748b' }}>ACCESS_LEVEL: 04</div>
+                            <div style={{ fontSize: '1.2rem', color: 'var(--theme-gov)', fontWeight: 'bold' }}>{userData?.points || 0} XP</div>
+                        </div>
+                    </div>
+                </header>
 
-            {/* Stats Cluster */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-                <div className="hud-border" style={{ padding: '1rem' }}>
-                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>TOTAL_SIGNATURES</div>
-                    <div className="mono" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-primary)' }}>{stats.total}</div>
-                </div>
-                <div className="hud-border" style={{ padding: '1rem' }}>
-                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)' }}>OPEN_VS_RESOLVED</div>
-                    <div className="mono" style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--color-danger)' }}>
-                        {stats.open} <span style={{ fontSize: '0.7rem', color: '#888' }}>/ {stats.resolved}</span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+                    <div className="glass-panel" style={{ padding: '1.5rem', borderLeft: '4px solid var(--theme-gov)' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 'bold' }}>ACTIVE SIGNATURES</div>
+                        <div style={{ fontSize: '2rem', color: 'white', fontWeight: 'bold' }}>{stats.total}</div>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '1.5rem', borderLeft: '4px solid #f87171' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 'bold' }}>OPEN ANOMALIES</div>
+                        <div style={{ fontSize: '2rem', color: '#f87171', fontWeight: 'bold' }}>{stats.open}</div>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '1.5rem', borderLeft: '4px solid #34d399' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 'bold' }}>RESOLVED PROTOCOLS</div>
+                        <div style={{ fontSize: '2rem', color: '#34d399', fontWeight: 'bold' }}>{stats.resolved}</div>
                     </div>
                 </div>
-                <div className="hud-border" style={{ padding: '1rem', gridColumn: 'span 2' }}>
-                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)', marginBottom: '0.5rem' }}>THREAT_DISTRIBUTION</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem' }}>
-                        <div className="mono">GOVT: <span className="color-primary">{stats.government}</span></div>
-                        <div className="mono">HEALTH: <span className="color-danger">{stats.health}</span></div>
-                        <div className="mono">PARA: <span className="color-accent">{stats.paranormal}</span></div>
+
+                <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
+                    <div style={{ padding: '1rem 1.5rem', background: 'rgba(30, 41, 59, 0.4)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--theme-gov)', fontWeight: 'bold', letterSpacing: '1px' }}>TELEMETRY_DATA_FEED</span>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></div>
+                            <span style={{ fontSize: '0.6rem', color: '#94a3b8' }}>LIVE_SYNC</span>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            {/* Operational Feed */}
-            <div className="hud-border" style={{ minHeight: '300px', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ padding: '0.75rem 1rem', background: 'rgba(30, 41, 59, 0.4)', borderBottom: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between' }}>
-                    <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--color-primary)' }}>OPERATIONAL_DATA_FEED</span>
-                    <span className="mono" style={{ fontSize: '0.6rem' }}>LIVE // SECURE</span>
-                </div>
-
-                <div style={{ padding: '1rem', overflowY: 'auto', flex: 1 }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                        <thead>
-                            <tr className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-text-dim)', borderBottom: '1px solid var(--color-border)' }}>
-                                <th style={{ padding: '0.5rem' }}>TIME</th>
-                                <th style={{ padding: '0.5rem' }}>TYPE</th>
-                                <th style={{ padding: '0.5rem' }}>URGENCY</th>
-                                <th style={{ padding: '0.5rem' }}>LINK</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {anomalies.map((a, i) => (
-                                <tr key={i} className="mono" style={{ fontSize: '0.7rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <td style={{ padding: '0.8rem 0.5rem', color: 'var(--color-text-dim)' }}>{new Date(a.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                                    <td style={{ padding: '0.8rem 0.5rem' }}>{(a.type || 'Unknown').toUpperCase()}</td>
-                                    <td style={{ padding: '0.8rem 0.5rem', color: a.urgency === 'High' ? 'var(--color-danger)' : 'inherit' }}>{(a.urgency || 'Low').toUpperCase()}</td>
-                                    <td style={{ padding: '0.8rem 0.5rem' }}>
-                                        <button onClick={() => navigate(`/room/${a.id}`)} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', fontSize: '0.6rem' }}>[ OPEN ]</button>
-                                    </td>
+                    <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                            <thead>
+                                <tr style={{ fontSize: '0.7rem', color: '#64748b', borderBottom: '1px solid rgba(255,255,255,0.05)', textTransform: 'uppercase' }}>
+                                    <th style={{ padding: '1rem' }}>SOP_TIMESTAMP</th>
+                                    <th style={{ padding: '1rem' }}>SECTOR</th>
+                                    <th style={{ padding: '1rem' }}>URGENCY_INDEX</th>
+                                    <th style={{ padding: '1rem', textAlign: 'right' }}>ACTION</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {anomalies.map((a, i) => (
+                                    <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '1.25rem 1rem', fontSize: '0.85rem', color: '#94a3b8', fontFamily: 'monospace' }}>
+                                            {new Date(a.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </td>
+                                        <td style={{ padding: '1.25rem 1rem', fontSize: '0.9rem', color: 'white', fontWeight: 'bold' }}>
+                                            {(a.type || 'Unknown').toUpperCase()}
+                                        </td>
+                                        <td style={{ padding: '1.25rem 1rem' }}>
+                                            <span style={{
+                                                fontSize: '0.7rem',
+                                                padding: '2px 8px',
+                                                borderRadius: '4px',
+                                                background: a.urgency === 'High' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.05)',
+                                                color: a.urgency === 'High' ? '#f87171' : '#94a3b8',
+                                                border: `1px solid ${a.urgency === 'High' ? '#ef4444' : 'rgba(255,255,255,0.1)'}`
+                                            }}>
+                                                {(a.urgency || 'Low').toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '1.25rem 1rem', textAlign: 'right' }}>
+                                            <button onClick={() => navigate(`/room/${a.id}`)} className="btn-3d" style={{ fontSize: '0.7rem', padding: '0.4rem 0.8rem' }}>
+                                                ESTABLISH_LINK
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1.5rem' }}>
+                    <button onClick={() => navigate('/map')} className="btn-3d" style={{ flex: 1, background: 'var(--theme-gov)', borderColor: 'var(--theme-gov)' }}>OPEN TACTICAL NAV_MAP</button>
+                    <button onClick={() => navigate('/profile')} className="btn-3d" style={{ flex: 0.3, opacity: 0.7 }}>OPERATIVE_PROFILE</button>
                 </div>
             </div>
-
-            <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-                <button onClick={() => navigate('/map')} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>TACTICAL_MAP</button>
-                <button onClick={() => navigate('/profile')} className="btn-primary" style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-dim)', boxShadow: 'none' }}>PROFILE</button>
-            </div>
-        </div>
+        </>
     );
 }

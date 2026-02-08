@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { saveChallengeResult, getChallengesBySkill } from '../services/jobService';
+import { saveChallengeResult } from '../services/jobService';
 import { useAuth } from '../context/AuthContext';
+import Scene3D from '../components/Scene3D';
 
 const DEFAULT_CHALLENGES = {
     'React': {
@@ -99,144 +100,126 @@ export default function ChallengePage() {
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
+    if (status === 'SUCCESS') {
+        return (
+            <>
+                <Scene3D variant="job" />
+                <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', textAlign: 'center' }}>
+                    <div className="glass-panel" style={{ padding: '3rem', border: '1px solid var(--theme-job)' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+                        <h1 style={{ color: 'var(--theme-job)', marginBottom: '1rem' }}>MODULE COMPLETE</h1>
+                        <p style={{ fontSize: '1.2rem', color: '#cbd5e1', marginBottom: '1.5rem' }}>
+                            Performance Rating: {score} Pts<br />
+                            Status: VERIFIED
+                        </p>
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                            <button onClick={() => navigate(`/jobs/interview/${anomalyId}/${skill} Developer`)} className="btn-3d" style={{ background: 'var(--theme-job)' }}>
+                                PROCEED TO INTERVIEW
+                            </button>
+                            <button onClick={() => navigate('/dashboard')} className="btn-3d">
+                                DASHBOARD
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
+    if (status === 'FAIL') {
+        return (
+            <>
+                <Scene3D variant="job" />
+                <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', textAlign: 'center' }}>
+                    <div className="glass-panel" style={{ borderColor: '#ef4444' }}>
+                        <h1 style={{ color: '#ef4444' }}>SESSION EXPIRED</h1>
+                        <p>Competency verification failed.</p>
+                        <button onClick={() => window.location.reload()} className="btn-3d" style={{ marginTop: '1rem' }}>RETRY MODULE</button>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
     return (
-        <div className="container animate-fade" style={{ background: '#0f172a', minHeight: '100vh', padding: '2rem', color: 'white' }}>
-            <div className="bg-grid" style={{ opacity: 0.1 }}></div>
+        <>
+            <Scene3D variant="job" />
+            <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '2rem' }}>
 
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <div>
-                    <div style={{ fontSize: '0.8rem', color: '#f59e0b', letterSpacing: '1px' }}>{skill.toUpperCase()} CHALLENGE</div>
-                    <h1 style={{ fontSize: '1.5rem', color: 'white' }}>Skill Verification</h1>
-                </div>
-                <div style={{
-                    fontSize: '1.5rem',
-                    fontWeight: 'bold',
-                    color: timeLeft < 60 ? '#ef4444' : '#38bdf8',
-                    fontFamily: 'monospace',
-                    background: 'rgba(15, 23, 42, 0.8)',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '4px',
-                    border: '1px solid #334155'
-                }}>
-                    {formatTime(timeLeft)}
-                </div>
-            </header>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', height: '60vh' }}>
-                {/* Problem Statement */}
-                <div style={{ background: 'rgba(30, 41, 59, 0.5)', padding: '1.5rem', borderRadius: '8px', overflowY: 'auto' }}>
-                    <h2 style={{ fontSize: '1.2rem', color: '#e2e8f0', marginBottom: '1rem' }}>Task</h2>
-                    <p style={{ color: '#94a3b8', lineHeight: '1.6' }}>{challengeData.question}</p>
-
-                    <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(15, 23, 42, 0.5)', borderRadius: '4px', borderLeft: '3px solid #f59e0b' }}>
-                        <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 'bold', marginBottom: '0.5rem' }}>CRITERIA</div>
-                        <ul style={{ paddingLeft: '1.2rem', color: '#94a3b8', fontSize: '0.9rem' }}>
-                            <li>Must use correct syntax</li>
-                            <li>Must return expected value</li>
-                            <li>Efficiency matters (Time Bonus)</li>
-                        </ul>
+                {/* Header */}
+                <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h1 className="glitch" data-text={`CODE_CHALLENGE: ${skill.toUpperCase()}`} style={{ fontSize: '1.5rem', color: '#c084fc' }}>
+                            CODE_CHALLENGE: {skill.toUpperCase()}
+                        </h1>
+                        <div style={{ fontSize: '0.8rem', color: '#a855f7', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span>⚡ POWERED BY</span>
+                            <span style={{ fontWeight: 'bold', border: '1px solid #a855f7', padding: '2px 6px', borderRadius: '4px', letterSpacing: '1px' }}>CODECRAFTERS</span>
+                        </div>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '1rem 2rem', color: timeLeft < 60 ? '#ef4444' : 'var(--theme-job)', fontSize: '1.5rem', fontWeight: 'bold' }}>
+                        {formatTime(timeLeft)}
                     </div>
                 </div>
 
-                {/* Code Editor */}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div style={{
-                        background: '#1e293b',
-                        padding: '0.5rem 1rem',
-                        borderTopLeftRadius: '8px',
-                        borderTopRightRadius: '8px',
-                        fontSize: '0.8rem',
-                        color: '#94a3b8',
-                        borderBottom: '1px solid #334155'
-                    }}>
-                        solution.js
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', height: '60vh' }}>
+                    {/* Problem Description */}
+                    <div className="glass-panel" style={{ overflowY: 'auto', background: 'rgba(15, 23, 42, 0.8)' }}>
+                        <h2 style={{ fontSize: '1.1rem', color: 'var(--theme-job)', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
+                            OBJECTIVE
+                        </h2>
+                        <p style={{ lineHeight: '1.8', color: '#e2e8f0', marginBottom: '2rem' }}>
+                            {challengeData.question}
+                        </p>
+
+                        <div style={{ background: 'rgba(124, 58, 237, 0.1)', borderLeft: '4px solid var(--theme-job)', padding: '1rem', borderRadius: '4px' }}>
+                            <div style={{ fontWeight: 'bold', color: 'var(--theme-job)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>BUILD YOUR OWN SOLUTION</div>
+                            <ul style={{ fontSize: '0.9rem', color: '#e2e8f0', paddingLeft: '1.2rem', margin: 0 }}>
+                                <li>Implement core logic from scratch.</li>
+                                <li>No external libraries allowed.</li>
+                                <li>Focus on deep understanding.</li>
+                            </ul>
+                        </div>
                     </div>
-                    <textarea
-                        value={code}
-                        onChange={(e) => setCode(e.target.value)}
-                        style={{
-                            flex: 1,
-                            background: '#0f172a',
-                            color: '#e2e8f0',
-                            fontFamily: 'monospace',
-                            fontSize: '1rem',
-                            padding: '1rem',
-                            border: '1px solid #334155',
-                            borderBottomLeftRadius: '8px',
-                            borderBottomRightRadius: '8px',
-                            resize: 'none',
-                            outline: 'none',
-                            lineHeight: '1.5'
-                        }}
-                        spellCheck="false"
-                    />
+
+                    {/* Code Editor */}
+                    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0, 0, 0, 0.3)', padding: 0, overflow: 'hidden' }}>
+                        <div style={{ padding: '0.5rem 1rem', background: 'rgba(0,0,0,0.5)', borderBottom: '1px solid rgba(255,255,255,0.1)', fontSize: '0.8rem', color: '#94a3b8', display: 'flex', gap: '1rem' }}>
+                            <span>main.js</span>
+                            <span>UTF-8</span>
+                        </div>
+                        <textarea
+                            value={code}
+                            onChange={(e) => setCode(e.target.value)}
+                            style={{
+                                flex: 1,
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#a5b4fc',
+                                fontFamily: 'monospace',
+                                fontSize: '1rem',
+                                padding: '1.5rem',
+                                resize: 'none',
+                                outline: 'none',
+                                lineHeight: '1.6'
+                            }}
+                            spellCheck="false"
+                        />
+                        <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                            <button
+                                onClick={handleSubmit}
+                                className="btn-3d"
+                                style={{ width: '100%', background: 'var(--theme-job)', borderColor: 'var(--theme-job)' }}
+                            >
+                                SUBMIT SOLUTION
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            {/* Actions */}
-            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem', alignItems: 'center' }}>
-                {status === 'SUCCESS' && (
-                    <div className="animate-pulse" style={{ color: '#10b981', fontWeight: 'bold' }}>
-                        ✓ TEST PASSED (+{score} XP)
-                    </div>
-                )}
-                {status === 'FAIL' && (
-                    <div style={{ color: '#ef4444', fontWeight: 'bold' }}>
-                        ❌ VALIDATION FAILED
-                    </div>
-                )}
-
-                <button
-                    onClick={() => {
-                        const roleMap = {
-                            'React': 'Frontend Developer',
-                            'CSS': 'Frontend Developer',
-                            'UI_UX': 'Frontend Developer',
-                            'Node.js': 'Backend Developer',
-                            'Python': 'Data Analyst'
-                        };
-                        const role = roleMap[skill] || 'Frontend Developer';
-
-                        if (anomalyId) {
-                            navigate(`/jobs/interview/${anomalyId}/${role}`);
-                        } else {
-                            navigate(`/jobs/interview/${role}`);
-                        }
-                    }}
-                    style={{
-                        padding: '1rem 2rem',
-                        background: 'transparent',
-                        color: '#94a3b8',
-                        border: '1px solid #334155',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        display: status === 'SUCCESS' ? 'block' : 'none'
-                    }}
-                >
-                    Proceed to Interview &rarr;
-                </button>
-
-                <button
-                    onClick={handleSubmit}
-                    disabled={status === 'SUCCESS'}
-                    className="btn-primary"
-                    style={{
-                        padding: '1rem 3rem',
-                        background: status === 'SUCCESS' ? '#10b981' : '#38bdf8',
-                        color: status === 'SUCCESS' ? 'white' : '#0f172a',
-                        fontWeight: 'bold',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: status === 'SUCCESS' ? 'default' : 'pointer',
-                        opacity: status === 'SUCCESS' ? 0.8 : 1
-                    }}
-                >
-                    {status === 'SUCCESS' ? 'SUBMITTED' : 'RUN TESTS'}
-                </button>
-            </div>
-        </div>
+        </>
     );
 }

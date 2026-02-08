@@ -2,126 +2,99 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { saveHealthRecord } from '../services/healthService';
+import Scene3D from '../components/Scene3D';
 
 export default function HealthActionPage() {
     const { state } = useLocation();
     const navigate = useNavigate();
     const { userId } = useAuth();
 
-    if (!state || !state.guidance) return null;
+    if (!state || !state.guidance) {
+        return (
+            <div className="container" style={{ textAlign: 'center', paddingTop: '10rem' }}>
+                <p>No health data found. Please start from the beginning.</p>
+                <button onClick={() => navigate('/health')} className="btn-3d">Return Home</button>
+            </div>
+        );
+    }
+
+    const { guidance } = state;
 
     const handleSaveToLog = async () => {
         try {
             await saveHealthRecord(userId, {
                 symptoms: state.selectedSymptoms,
                 others: state.others,
-                urgency: state.guidance.urgency,
-                guidance: state.guidance
+                urgency: guidance.urgency,
+                guidance: guidance,
+                timestamp: Date.now()
             });
-            alert("Record saved to health log successfully.");
+            alert("Record successfully saved to your medical log.");
             navigate('/health/log');
         } catch (e) {
-            alert("Error saving record: " + e.message);
+            console.error("Error saving record:", e);
+            alert("Failed to save record. Please try again.");
         }
     };
 
     return (
-        <div className="container animate-fade" style={{
-            '--color-primary': 'var(--theme-health-primary)',
-            '--color-secondary': 'var(--theme-health-secondary)',
-            '--color-accent': 'var(--theme-health-accent)',
-            background: 'var(--theme-health-bg)',
-            color: '#ecfdf5', // Mint white
-            minHeight: '100vh',
-            padding: '1.5rem'
-        }}>
-            <header style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                <h1 style={{ color: 'var(--theme-health-accent)', fontSize: '1.5rem', textTransform: 'none', letterSpacing: 'normal', fontWeight: 'bold' }}>Recommended Actions</h1>
-                <p style={{ color: '#d1fae5', fontSize: '0.9rem' }}>Follow these steps for your well-being.</p>
-            </header>
+        <>
+            <Scene3D variant="health" />
+            <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '2rem' }}>
 
-            <div style={{ background: 'rgba(6, 78, 59, 0.6)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #059669', marginBottom: '2rem' }}>
-                <section style={{ marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '1rem', color: '#a7f3d0', marginBottom: '1rem', borderBottom: '1px solid #065f46', paddingBottom: '0.5rem' }}>When to Consult a Doctor</h2>
-                    <ul style={{ paddingLeft: '1.2rem', color: '#d1fae5', fontSize: '0.9rem', display: 'grid', gap: '0.5rem' }}>
-                        <li>If symptoms worsen after 24 hours.</li>
-                        <li>If you develop a high fever (above 101°F).</li>
-                        <li>If you experience persistent dizziness or fainting.</li>
-                        <li>If you are unsure about the home care steps.</li>
-                    </ul>
-                </section>
+                <div className="glass-panel" style={{ maxWidth: '600px', width: '100%', borderTop: '4px solid var(--theme-health)' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🛡️</div>
+                        <h1 style={{ color: 'var(--theme-health)', fontSize: '2rem', marginBottom: '0.5rem' }}>ACTION PROTOCOL</h1>
+                        <p style={{ color: '#94a3b8' }}>Verified steps for symptom management.</p>
+                    </div>
 
-                <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(220, 38, 38, 0.1)', borderRadius: '8px', border: '1px solid #991b1b' }}>
-                    <h2 style={{ fontSize: '1rem', color: '#fca5a5', marginBottom: '0.5rem' }}>Emergency Indicators</h2>
-                    <p style={{ fontSize: '0.85rem', color: '#fecaca' }}>Seek immediate help if you have:</p>
-                    <ul style={{ paddingLeft: '1.2rem', color: '#fecaca', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-                        <li>Difficulty breathing</li>
-                        <li>Sudden chest pain</li>
-                        <li>Loss of consciousness</li>
-                        <li>Severe allergic reaction</li>
-                    </ul>
-                </section>
+                    <div style={{ marginBottom: '2rem' }}>
+                        <h2 style={{ fontSize: '0.9rem', color: 'var(--theme-health)', textTransform: 'uppercase', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
+                            Medical Recommendations
+                        </h2>
+                        <ul style={{ display: 'grid', gap: '0.75rem', color: '#cbd5e1', fontSize: '0.95rem', paddingLeft: '1rem' }}>
+                            <li>Monitor vitals every 4 hours.</li>
+                            <li>Ensure adequate hydration and rest.</li>
+                            <li>Avoid heavy physical activity for 24 hours.</li>
+                            <li>If symptoms persist or worsen, seek professional help.</li>
+                        </ul>
+                    </div>
 
-                <section>
-                    <h2 style={{ fontSize: '0.9rem', color: '#718096', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Nearby Healthcare</h2>
-                    <p style={{ fontSize: '0.85rem', color: '#4a5568' }}>
-                        <strong>Hawkins Community Hospital:</strong> 1.2 miles away<br />
-                        <strong>General Practice Clinic:</strong> 0.5 miles away
-                    </p>
-                </section>
+                    <div style={{ padding: '1rem', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.2)', marginBottom: '2rem' }}>
+                        <h3 style={{ fontSize: '0.8rem', color: 'var(--theme-health)', marginBottom: '0.5rem' }}>LOCAL FACILITIES</h3>
+                        <p style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                            <strong>Hawkins Med-Center:</strong> 0.8mi North<br />
+                            <strong>Bio-Research Lab B:</strong> Restricted Access
+                        </p>
+                    </div>
+
+                    <div style={{ display: 'grid', gap: '1rem' }}>
+                        <button
+                            onClick={() => navigate('/health/reminders')}
+                            className="btn-3d"
+                            style={{ background: 'var(--theme-health)', borderColor: 'var(--theme-health)' }}
+                        >
+                            SET TRACKING REMINDER
+                        </button>
+
+                        <button
+                            onClick={handleSaveToLog}
+                            className="btn-3d"
+                        >
+                            SAVE TO SECURE LOG
+                        </button>
+
+                        <button
+                            onClick={() => navigate('/health')}
+                            className="btn-3d"
+                            style={{ opacity: 0.6 }}
+                        >
+                            COMPLETE SESSION
+                        </button>
+                    </div>
+                </div>
             </div>
-
-            <div style={{ display: 'grid', gap: '1rem' }}>
-                <button
-                    onClick={() => navigate('/health/reminders')}
-                    style={{
-                        width: '100%',
-                        padding: '1.25rem',
-                        background: '#38a169',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontWeight: 'bold',
-                        fontSize: '1rem',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Set Reminder
-                </button>
-
-                <button
-                    onClick={handleSaveToLog}
-                    style={{
-                        width: '100%',
-                        padding: '1.25rem',
-                        background: '#3182ce',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontWeight: 'bold',
-                        fontSize: '1rem',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Save to Health Log
-                </button>
-
-                <button
-                    onClick={() => navigate('/health')}
-                    style={{
-                        marginTop: '0.5rem',
-                        width: '100%',
-                        padding: '1rem',
-                        background: 'transparent',
-                        border: '1px solid #cbd5e0',
-                        borderRadius: '8px',
-                        color: '#718096',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Finish Session
-                </button>
-            </div>
-        </div>
+        </>
     );
 }
