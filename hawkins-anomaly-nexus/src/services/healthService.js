@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, addDoc, query, where, getDocs, orderBy, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, orderBy, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 
 const GUIDANCE_RULES = [
     {
@@ -99,6 +99,15 @@ export const saveReminder = async (userId, reminder) => {
         });
     } catch (e) {
         console.error("Error saving reminder:", e);
+        throw e;
+    }
+};
+
+export const deleteHealthRecord = async (recordId) => {
+    try {
+        await deleteDoc(doc(db, 'healthRecords', recordId));
+    } catch (e) {
+        console.error("Error deleting health record:", e);
         throw e;
     }
 };
