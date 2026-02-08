@@ -23,7 +23,6 @@ import SkillProfilePage from './pages/SkillProfilePage';
 function App() {
     return (
         <Router>
-            <div className="bg-cracks"></div>
             <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/report" element={<ReportPage />} />
