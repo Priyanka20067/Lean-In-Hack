@@ -55,9 +55,14 @@ export default function RoomPage() {
                     <h2 className="mono" style={{ fontSize: '0.9rem', color: 'var(--color-primary)', margin: 0 }}>
                         ENCRYPTED_CHANNEL::{id.substring(0, 8).toUpperCase()}
                     </h2>
-                    <button onClick={() => navigate('/map')} className="mono" style={{ background: 'none', border: 'none', color: 'var(--color-text-dim)', fontSize: '0.6rem', cursor: 'pointer' }}>
-                        [ RETURN_TO_MAP ]
-                    </button>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button onClick={() => navigate(`/resolve/${id}`)} className="mono" style={{ background: 'var(--color-danger)', border: 'none', color: 'white', fontSize: '0.6rem', cursor: 'pointer', padding: '0.2rem 0.5rem', borderRadius: '2px' }}>
+                            [ RESOLVE_PROTOCOL ]
+                        </button>
+                        <button onClick={() => navigate('/map')} className="mono" style={{ background: 'none', border: 'none', color: 'var(--color-text-dim)', fontSize: '0.6rem', cursor: 'pointer' }}>
+                            [ RETURN_TO_MAP ]
+                        </button>
+                    </div>
                 </div>
                 <div className="mono" style={{ fontSize: '0.6rem', display: 'flex', gap: '1rem', color: 'var(--color-secondary)' }}>
                     <span>NODE: HAWKINS_CENTRAL</span>
