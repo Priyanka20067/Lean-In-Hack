@@ -26,16 +26,24 @@ export default function HealthActionPage() {
     };
 
     return (
-        <div className="container animate-fade" style={{ backgroundColor: '#f0f4f8', color: '#1a202c', minHeight: '100vh', padding: '1.5rem' }}>
+        <div className="container animate-fade" style={{
+            '--color-primary': 'var(--theme-health-primary)',
+            '--color-secondary': 'var(--theme-health-secondary)',
+            '--color-accent': 'var(--theme-health-accent)',
+            background: 'var(--theme-health-bg)',
+            color: '#ecfdf5', // Mint white
+            minHeight: '100vh',
+            padding: '1.5rem'
+        }}>
             <header style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                <h1 style={{ color: '#2d3748', fontSize: '1.5rem', textTransform: 'none', letterSpacing: 'normal' }}>Recommended Actions</h1>
-                <p style={{ color: '#4a5568', fontSize: '0.9rem' }}>Follow these steps for your well-being.</p>
+                <h1 style={{ color: 'var(--theme-health-accent)', fontSize: '1.5rem', textTransform: 'none', letterSpacing: 'normal', fontWeight: 'bold' }}>Recommended Actions</h1>
+                <p style={{ color: '#d1fae5', fontSize: '0.9rem' }}>Follow these steps for your well-being.</p>
             </header>
 
-            <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '2rem' }}>
+            <div style={{ background: 'rgba(6, 78, 59, 0.6)', padding: '1.5rem', borderRadius: '12px', border: '1px solid #059669', marginBottom: '2rem' }}>
                 <section style={{ marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '1rem', color: '#2d3748', marginBottom: '1rem', borderBottom: '1px solid #edf2f7', paddingBottom: '0.5rem' }}>When to Consult a Doctor</h2>
-                    <ul style={{ paddingLeft: '1.2rem', color: '#4a5568', fontSize: '0.9rem', display: 'grid', gap: '0.5rem' }}>
+                    <h2 style={{ fontSize: '1rem', color: '#a7f3d0', marginBottom: '1rem', borderBottom: '1px solid #065f46', paddingBottom: '0.5rem' }}>When to Consult a Doctor</h2>
+                    <ul style={{ paddingLeft: '1.2rem', color: '#d1fae5', fontSize: '0.9rem', display: 'grid', gap: '0.5rem' }}>
                         <li>If symptoms worsen after 24 hours.</li>
                         <li>If you develop a high fever (above 101°F).</li>
                         <li>If you experience persistent dizziness or fainting.</li>
@@ -43,10 +51,10 @@ export default function HealthActionPage() {
                     </ul>
                 </section>
 
-                <section style={{ marginBottom: '1.5rem', padding: '1rem', background: '#ebf8ff', borderRadius: '8px', border: '1px solid #bee3f8' }}>
-                    <h2 style={{ fontSize: '1rem', color: '#2b6cb0', marginBottom: '0.5rem' }}>Emergency Indicators</h2>
-                    <p style={{ fontSize: '0.85rem', color: '#2c5282' }}>Seek immediate help if you have:</p>
-                    <ul style={{ paddingLeft: '1.2rem', color: '#2c5282', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                <section style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(220, 38, 38, 0.1)', borderRadius: '8px', border: '1px solid #991b1b' }}>
+                    <h2 style={{ fontSize: '1rem', color: '#fca5a5', marginBottom: '0.5rem' }}>Emergency Indicators</h2>
+                    <p style={{ fontSize: '0.85rem', color: '#fecaca' }}>Seek immediate help if you have:</p>
+                    <ul style={{ paddingLeft: '1.2rem', color: '#fecaca', fontSize: '0.85rem', marginTop: '0.5rem' }}>
                         <li>Difficulty breathing</li>
                         <li>Sudden chest pain</li>
                         <li>Loss of consciousness</li>
