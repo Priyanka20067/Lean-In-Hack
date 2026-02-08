@@ -31,7 +31,7 @@ export default function JobSuggestionPage() {
 
             if (text.includes('frontend') || text.includes('ui') || text.includes('design') || text.includes('interface')) {
                 role = "Frontend Developer";
-                skills = ["React", "CSS", "UI/UX"];
+                skills = ["React", "CSS", "UI_UX"];
                 reason = "Anomaly involves visual interface glitches.";
             } else if (text.includes('backend') || text.includes('database') || text.includes('server') || text.includes('api')) {
                 role = "Backend Developer";
