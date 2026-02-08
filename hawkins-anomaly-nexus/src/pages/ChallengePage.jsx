@@ -155,10 +155,6 @@ export default function ChallengePage() {
                         <h1 className="glitch" data-text={`CODE_CHALLENGE: ${skill.toUpperCase()}`} style={{ fontSize: '1.5rem', color: '#c084fc' }}>
                             CODE_CHALLENGE: {skill.toUpperCase()}
                         </h1>
-                        <div style={{ fontSize: '0.8rem', color: '#a855f7', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span>⚡ POWERED BY</span>
-                            <span style={{ fontWeight: 'bold', border: '1px solid #a855f7', padding: '2px 6px', borderRadius: '4px', letterSpacing: '1px' }}>CODECRAFTERS</span>
-                        </div>
                     </div>
                     <div className="glass-panel" style={{ padding: '1rem 2rem', color: timeLeft < 60 ? '#ef4444' : 'var(--theme-job)', fontSize: '1.5rem', fontWeight: 'bold' }}>
                         {formatTime(timeLeft)}

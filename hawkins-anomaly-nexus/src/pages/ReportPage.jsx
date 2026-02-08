@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { saveAnomalyLocally, getLocalAnomalies, syncPendingItems } from '../services/storage';
 import { analyzeAnomaly } from '../services/ai';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,10 @@ export default function ReportPage() {
     const [lastReportId, setLastReportId] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState(null);
+    const [isListening, setIsListening] = useState(false);
+
+    // Web Speech API references
+    const recognitionRef = useRef(null);
 
     useEffect(() => {
         const handleStatusChange = () => {
@@ -28,9 +32,48 @@ export default function ReportPage() {
         window.addEventListener('online', handleStatusChange);
         window.addEventListener('offline', handleStatusChange);
         loadHistory();
+
+        // Initialize Speech Recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            recognitionRef.current = new SpeechRecognition();
+            recognitionRef.current.continuous = true;
+            recognitionRef.current.interimResults = true;
+
+            recognitionRef.current.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                if (finalTranscript) {
+                    setDescription(prev => (prev ? prev + ' ' : '') + finalTranscript);
+                }
+            };
+
+            recognitionRef.current.onend = () => {
+                setIsListening(false);
+            };
+
+            recognitionRef.current.onerror = (event) => {
+                console.error("Speech recognition error:", event.error);
+                setIsListening(false);
+                setStatus(`_VOICE_SYNC_ERROR: ${event.error.toUpperCase()}`);
+            };
+        }
+
         return () => {
             window.removeEventListener('online', handleStatusChange);
             window.removeEventListener('offline', handleStatusChange);
+            if (recognitionRef.current) {
+                recognitionRef.current.stop();
+            }
         };
     }, [userId]);
 
@@ -40,11 +83,33 @@ export default function ReportPage() {
     };
 
     const handleVoiceInput = () => {
-        setDescription("Detected massive fluctuation in electromagnetic fields near the starcourt ruins.");
+        if (!recognitionRef.current) {
+            setStatus("_HARDWARE_LINK_MISSING: SPEECH_API_NOT_SUPPORTED");
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current.stop();
+            setIsListening(false);
+            setStatus("_VOICE_FEED_STANDBY");
+        } else {
+            try {
+                recognitionRef.current.start();
+                setIsListening(true);
+                setStatus("_VOICE_SYNC_ACTIVE: LISTENING...");
+            } catch (err) {
+                console.error("Start error:", err);
+            }
+        }
     };
 
     const handleSubmit = async () => {
         if (!description.trim()) return;
+
+        // Stop listening if we submit
+        if (isListening) {
+            recognitionRef.current.stop();
+        }
 
         setStatus('_INITIALIZING GAIA_AI ANALYSIS');
         setIsAnalyzing(true);
@@ -172,7 +237,7 @@ export default function ReportPage() {
                         />
                     </div>
 
-                    <div style={{ marginBottom: '2.5rem' }}>
+                    <div style={{ marginBottom: '2.5rem', position: 'relative' }}>
                         <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'bold', display: 'block', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Phenomenon Stream Description</label>
                         <textarea
                             value={description}
@@ -193,10 +258,27 @@ export default function ReportPage() {
                                 lineHeight: '1.6'
                             }}
                         />
+                        {isListening && (
+                            <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', display: 'flex', gap: '4px' }}>
+                                <div className="animate-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></div>
+                                <span style={{ fontSize: '0.6rem', color: '#ef4444', fontWeight: 'bold' }}>REC</span>
+                            </div>
+                        )}
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                        <button onClick={handleVoiceInput} disabled={isAnalyzing} className="btn-3d" style={{ opacity: 0.6 }}>AUDIO_SYNC_FEED</button>
+                        <button
+                            onClick={handleVoiceInput}
+                            disabled={isAnalyzing}
+                            className="btn-3d"
+                            style={{
+                                background: isListening ? 'rgba(239, 68, 68, 0.2)' : 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+                                borderColor: isListening ? '#ef4444' : 'var(--glass-border)',
+                                color: isListening ? '#f87171' : 'white'
+                            }}
+                        >
+                            {isListening ? 'LEAVE_AUDIO_FEED' : 'AUDIO_SYNC_FEED'}
+                        </button>
                         <button onClick={handleSubmit} disabled={isAnalyzing || !description.trim()} className="btn-3d" style={{ background: 'var(--theme-gov)', borderColor: 'var(--theme-gov)' }}>TRANSMIT_DATA</button>
                     </div>
 
