@@ -74,41 +74,49 @@ export default function JobSuggestionPage() {
     }
 
     return (
-        <div className="container animate-fade" style={{ background: '#0f172a', minHeight: '100vh', padding: '2rem', color: 'white' }}>
+        <div className="container animate-fade" style={{
+            '--color-primary': 'var(--theme-job-primary)',
+            '--color-secondary': 'var(--theme-job-secondary)',
+            '--color-accent': 'var(--theme-job-accent)',
+            background: 'var(--theme-job-bg)',
+            minHeight: '100vh',
+            padding: '2rem',
+            color: 'white'
+        }}>
             <div className="bg-grid" style={{ opacity: 0.1 }}></div>
 
             <header style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.8rem', color: '#94a3b8', letterSpacing: '2px', marginBottom: '0.5rem' }}>ANOMALY REPORT #{anomalyId}</div>
-                <h1 style={{ fontSize: '1.8rem', color: '#38bdf8', textShadow: '0 0 10px rgba(56, 189, 248, 0.5)' }}>CAREER PATH DETECTED</h1>
+                <div style={{ fontSize: '0.8rem', color: 'var(--theme-job-accent)', letterSpacing: '2px', marginBottom: '0.5rem' }}>ANOMALY REPORT #{anomalyId}</div>
+                <h1 style={{ fontSize: '1.8rem', color: 'white', textShadow: '0 0 10px rgba(124, 58, 237, 0.5)' }}>CAREER PATH DETECTED</h1>
             </header>
 
             <div className="hud-border" style={{
-                background: 'rgba(30, 41, 59, 0.5)',
+                background: 'rgba(10, 10, 10, 0.6)',
                 padding: '2rem',
                 borderRadius: '8px',
-                border: '1px solid #38bdf8',
+                border: '1px solid var(--color-primary)',
                 marginBottom: '2rem',
                 textAlign: 'center'
             }}>
                 <div style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1rem' }}>BASED ON YOUR REPORT:</div>
-                <div style={{ fontSize: '1rem', fontStyle: 'italic', color: '#cbd5e1', marginBottom: '2rem' }}>"{state?.description || 'Data Not Available'}"</div>
+                <div style={{ fontSize: '1rem', fontStyle: 'italic', color: '#e2e8f0', marginBottom: '2rem' }}>"{state?.description || 'Data Not Available'}"</div>
 
-                <div style={{ height: '1px', background: '#334155', width: '100%', marginBottom: '2rem' }}></div>
+                <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', width: '100%', marginBottom: '2rem' }}></div>
 
                 <div style={{ marginBottom: '2rem' }}>
-                    <div style={{ fontSize: '0.8rem', color: '#38bdf8', letterSpacing: '1px' }}>SUGGESTED ROLE</div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'white', textShadow: '0 0 20px rgba(56, 189, 248, 0.3)' }}>{suggestion.role}</div>
-                    <div style={{ color: '#94a3b8', marginTop: '0.5rem' }}>{suggestion.reason}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--color-primary)', letterSpacing: '1px' }}>SUGGESTED ROLE</div>
+                    <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'white', textShadow: '0 0 20px rgba(124, 58, 237, 0.3)' }}>{suggestion.role}</div>
+                    <div style={{ color: '#cbd5e1', marginTop: '0.5rem' }}>{suggestion.reason}</div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                     {suggestion.missingSkills.map(skill => (
                         <div key={skill} style={{
                             padding: '0.5rem 1rem',
-                            background: 'rgba(56, 189, 248, 0.1)',
-                            border: '1px solid #38bdf8',
+                            background: 'rgba(124, 58, 237, 0.1)',
+                            border: '1px solid var(--color-primary)',
                             borderRadius: '4px',
-                            color: '#38bdf8'
+                            color: 'var(--theme-job-accent)'
                         }}>
                             {skill}
                         </div>
@@ -123,13 +131,13 @@ export default function JobSuggestionPage() {
                     width: '100%',
                     padding: '1.5rem',
                     fontSize: '1.2rem',
-                    background: '#38bdf8',
-                    color: '#0f172a',
+                    background: 'var(--color-primary)',
+                    color: 'white',
                     fontWeight: 'bold',
                     border: 'none',
                     borderRadius: '4px',
                     cursor: 'pointer',
-                    boxShadow: '0 0 20px rgba(56, 189, 248, 0.4)'
+                    boxShadow: '0 0 20px rgba(124, 58, 237, 0.4)'
                 }}
             >
                 START TRAINING PROTOCOL &rarr;
@@ -142,7 +150,7 @@ export default function JobSuggestionPage() {
                     marginTop: '1rem',
                     padding: '1rem',
                     background: 'transparent',
-                    color: '#64748b',
+                    color: '#94a3b8',
                     border: '1px solid #334155',
                     borderRadius: '4px',
                     cursor: 'pointer'
