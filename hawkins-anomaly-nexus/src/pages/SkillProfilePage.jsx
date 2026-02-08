@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getUserSkillProfile } from '../services/jobService';
 import GeekRoomChat from '../components/GeekRoomChat';
+import Scene3D from '../components/Scene3D';
 
 export default function SkillProfilePage() {
     const { userId } = useAuth();
@@ -20,88 +21,102 @@ export default function SkillProfilePage() {
         loadProfile();
     }, [userId]);
 
-    if (loading) return <div style={{ color: '#94a3b8', padding: '2rem' }}>Loading profile...</div>;
+    if (loading) {
+        return (
+            <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0f172a' }}>
+                <div className="animate-pulse" style={{ color: 'var(--theme-job)', fontWeight: 'bold' }}>FETCHING NEURAL PROFILE...</div>
+            </div>
+        );
+    }
 
     const skills = profile ? Object.entries(profile.skills || {}) : [];
 
     return (
-        <div className="container animate-fade" style={{ background: '#0f172a', minHeight: '100vh', padding: '2rem', color: 'white' }}>
-            <div className="bg-grid" style={{ opacity: 0.1 }}></div>
+        <>
+            <Scene3D variant="job" />
+            <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '2rem' }}>
 
-            <header style={{ marginBottom: '3rem', borderBottom: '1px solid #334155', paddingBottom: '1rem' }}>
-                <div style={{ fontSize: '0.8rem', color: '#c084fc', letterSpacing: '1px' }}>OPERATIVE PROFILE</div>
-                <h1 style={{ fontSize: '2rem', color: 'white' }}>{userId ? `User-${userId.substring(0, 4)}` : 'Guest'}</h1>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                    <div className="badge" style={{ background: '#c084fc', color: '#3b0764' }}>{profile?.level || 'Recruit'}</div>
-                    {profile?.badges?.map(b => (
-                        <div key={b} className="badge" style={{ background: '#f59e0b', color: '#451a03' }}>{b}</div>
-                    ))}
-                </div>
-            </header>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                {/* Skills List */}
-                <div>
-                    <h2 style={{ fontSize: '1.2rem', color: '#e2e8f0', marginBottom: '1.5rem' }}>Verified Skills</h2>
-                    <div style={{ display: 'grid', gap: '1rem' }}>
-                        {skills.length === 0 && <div style={{ color: '#64748b' }}>No skills verified yet. Complete challenges to earn XP.</div>}
-
-                        {skills.map(([skill, xp]) => (
-                            <div key={skill} style={{ background: '#1e293b', padding: '1rem', borderRadius: '8px', border: '1px solid #334155' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                    <span style={{ fontWeight: 'bold', color: '#38bdf8' }}>{skill}</span>
-                                    <span style={{ fontSize: '0.9rem', color: '#94a3b8' }}>{xp} XP</span>
-                                </div>
-                                <div style={{ width: '100%', height: '4px', background: '#0f172a', borderRadius: '2px' }}>
-                                    <div style={{ width: `${Math.min(xp, 100)}%`, height: '100%', background: '#38bdf8', borderRadius: '2px' }}></div>
-                                </div>
-
-                                <button
-                                    onClick={() => setActiveChatSkill(skill === activeChatSkill ? null : skill)}
-                                    style={{
-                                        marginTop: '1rem',
-                                        width: '100%',
-                                        padding: '0.5rem',
-                                        background: activeChatSkill === skill ? '#38bdf8' : 'transparent',
-                                        color: activeChatSkill === skill ? '#0f172a' : '#94a3b8',
-                                        border: '1px solid #38bdf8',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer',
-                                        fontSize: '0.8rem',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    {activeChatSkill === skill ? 'CLOSE COMMS' : 'OPEN GEEK ROOM COMMS'}
-                                </button>
+                <header style={{ marginBottom: '3rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1.5rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--theme-job)', letterSpacing: '4px', fontWeight: 'bold', marginBottom: '0.5rem' }}>AUTHORIZED PERSONNEL ONLY</div>
+                    <h1 style={{ fontSize: '2.5rem', color: 'white', marginBottom: '1rem' }}>
+                        {userId ? `OPERATIVE_${userId.substring(0, 8).toUpperCase()}` : 'GUEST_PROFILE'}
+                    </h1>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+                        <div style={{ padding: '4px 16px', borderRadius: '20px', background: 'rgba(139, 92, 246, 0.2)', border: '1px solid var(--theme-job)', color: 'white', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                            {profile?.level?.toUpperCase() || 'RECRUIT'}
+                        </div>
+                        {profile?.badges?.map(b => (
+                            <div key={b} style={{ padding: '4px 16px', borderRadius: '20px', background: 'rgba(245, 158, 11, 0.2)', border: '1px solid #f59e0b', color: '#f59e0b', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                {b.toUpperCase()}
                             </div>
                         ))}
                     </div>
-                </div>
+                </header>
 
-                {/* Geek Room Chat Area */}
-                <div>
-                    <h2 style={{ fontSize: '1.2rem', color: '#e2e8f0', marginBottom: '1.5rem' }}>Active Comms Channel</h2>
-                    {activeChatSkill ? (
-                        <GeekRoomChat skill={activeChatSkill} />
-                    ) : (
-                        <div style={{
-                            height: '400px',
-                            background: 'rgba(30, 41, 59, 0.3)',
-                            borderRadius: '8px',
-                            border: '1px dashed #334155',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#64748b',
-                            flexDirection: 'column',
-                            gap: '1rem'
-                        }}>
-                            <div style={{ fontSize: '2rem' }}>📡</div>
-                            <div>Select a skill to join its Geek Room channel.</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 1.5fr', gap: '2rem', flex: 1, maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
+                    {/* Skills List */}
+                    <div className="glass-panel" style={{ height: 'fit-content', padding: '2rem' }}>
+                        <h2 style={{ fontSize: '1.2rem', color: 'white', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>Verified Proficiencies</h2>
+                        <div style={{ display: 'grid', gap: '1.25rem' }}>
+                            {skills.length === 0 && <div style={{ color: '#64748b', textAlign: 'center', padding: '2rem' }}>No telemetry data found. Complete challenges to earn XP.</div>}
+
+                            {skills.map(([skill, xp]) => (
+                                <div key={skill} style={{ background: 'rgba(0,0,0,0.2)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                                        <span style={{ fontWeight: 'bold', color: 'var(--theme-job)', fontSize: '1rem' }}>{skill}</span>
+                                        <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{xp} XP</span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '4px', background: 'rgba(0,0,0,0.3)', borderRadius: '2px', marginBottom: '1.25rem' }}>
+                                        <div style={{ width: `${Math.min(xp, 100)}%`, height: '100%', background: 'var(--theme-job)', boxShadow: '0 0 8px var(--theme-job)', borderRadius: '2px' }}></div>
+                                    </div>
+
+                                    <button
+                                        onClick={() => setActiveChatSkill(skill === activeChatSkill ? null : skill)}
+                                        className="btn-3d"
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.5rem',
+                                            background: activeChatSkill === skill ? 'var(--theme-job)' : 'transparent',
+                                            borderColor: 'var(--theme-job)',
+                                            color: activeChatSkill === skill ? 'white' : 'var(--theme-job)',
+                                            fontSize: '0.75rem'
+                                        }}
+                                    >
+                                        {activeChatSkill === skill ? 'CLOSE COMMS CHANNEL' : 'SYNC WITH GEEK_ROOM'}
+                                    </button>
+                                </div>
+                            ))}
                         </div>
-                    )}
+                    </div>
+
+                    {/* Geek Room Chat Area */}
+                    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+                        <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h2 style={{ fontSize: '1rem', color: 'white', margin: 0 }}>Active Comms Channel</h2>
+                            {activeChatSkill && <span style={{ fontSize: '0.7rem', color: 'var(--theme-job)', fontWeight: 'bold' }}>📡 {activeChatSkill.toUpperCase()}</span>}
+                        </div>
+                        <div style={{ flex: 1, padding: '1.5rem' }}>
+                            {activeChatSkill ? (
+                                <GeekRoomChat skill={activeChatSkill} />
+                            ) : (
+                                <div style={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#64748b',
+                                    flexDirection: 'column',
+                                    gap: '1.5rem',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ fontSize: '3rem', opacity: 0.2 }}>🛰️</div>
+                                    <div style={{ maxWidth: '250px', fontSize: '0.9rem' }}>Select a verified proficiency to establish a multi-node comms link with other operatives.</div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

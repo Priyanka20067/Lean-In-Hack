@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { subscribeToMessages, sendMessageToFirestore } from '../services/firestoreService';
 import { useAuth } from '../context/AuthContext';
+import Scene3D from '../components/Scene3D';
 
 export default function RoomPage() {
     const { id } = useParams();
@@ -45,118 +46,86 @@ export default function RoomPage() {
     };
 
     return (
-        <div className="container animate-fade" style={{
-            '--color-primary': 'var(--theme-gov-primary)',
-            '--color-secondary': 'var(--theme-gov-secondary)',
-            '--color-accent': 'var(--theme-gov-accent)',
-            '--color-bg-dark': 'var(--theme-gov-bg)', // Use the gradient
-            background: 'var(--theme-gov-bg)',
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100vh',
-            padding: '1rem',
-            color: 'white'
-        }}>
-            <div className="bg-grid" style={{ opacity: 0.1 }}></div>
-            <div className="bg-scanlines"></div>
+        <>
+            <Scene3D variant="gov" />
+            <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '2rem' }}>
 
-            {/* Tactical Header */}
-            <div className="hud-border" style={{ padding: '1rem', marginBottom: '1rem', background: 'rgba(15, 23, 42, 0.8)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <h2 className="mono" style={{ fontSize: '0.9rem', color: 'var(--color-primary)', margin: 0 }}>
-                        SECURE_CHANNEL::{id.substring(0, 8).toUpperCase()}
-                    </h2>
+                {/* Header */}
+                <div className="glass-panel" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem' }}>
+                    <div>
+                        <h2 style={{ color: 'var(--theme-gov)', fontSize: '1rem' }}>GOV.SECURE_CHANNEL</h2>
+                        <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>ID: {id.substring(0, 8).toUpperCase()}</div>
+                    </div>
                     <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button onClick={() => navigate(`/resolve/${id}`)} className="mono" style={{ background: 'var(--color-danger)', border: 'none', color: 'white', fontSize: '0.6rem', cursor: 'pointer', padding: '0.2rem 0.5rem', borderRadius: '2px' }}>
-                            [ RESOLVE_PROTOCOL ]
+                        <button onClick={() => navigate(`/resolve/${id}`)} className="btn-3d" style={{ borderColor: '#ef4444', color: '#ef4444' }}>
+                            RESOLVE PROTOCOL
                         </button>
-                        <button onClick={() => navigate('/map')} className="mono" style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.6rem', cursor: 'pointer' }}>
-                            [ RETURN_TO_MAP ]
+                        <button onClick={() => navigate('/map')} className="btn-3d">
+                            RETURN TO MAP
                         </button>
                     </div>
                 </div>
-                <div className="mono" style={{ fontSize: '0.6rem', display: 'flex', gap: '1rem', color: '#64748b' }}>
-                    <span>NODE: HAWKINS_CENTRAL</span>
-                    <span>ENCRYPTION: AES-256</span>
-                    <span className="blink" style={{ color: 'var(--color-accent)' }}>● LIVE_FEED</span>
-                </div>
-            </div>
 
-            {/* Message Stream */}
-            <div className="hud-border" style={{
-                flex: 1,
-                overflowY: 'auto',
-                padding: '1.5rem',
-                marginBottom: '1rem',
-                background: 'rgba(2, 4, 8, 0.6)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem'
-            }}>
-                {messages.map((msg, i) => (
-                    <div key={i} style={{
-                        alignSelf: msg.senderId === userId ? 'flex-end' : 'flex-start',
-                        maxWidth: '85%'
-                    }}>
-                        <div className="mono" style={{
-                            fontSize: '0.55rem',
-                            color: '#94a3b8',
-                            marginBottom: '2px',
-                            textAlign: msg.senderId === userId ? 'right' : 'left'
+                {/* Chat Area */}
+                <div className="glass-panel" style={{ flex: 1, overflowY: 'auto', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', background: 'rgba(30, 41, 59, 0.4)' }}>
+                    {messages.map((msg, i) => (
+                        <div key={i} style={{
+                            alignSelf: msg.senderId === userId ? 'flex-end' : 'flex-start',
+                            maxWidth: '70%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: msg.senderId === userId ? 'flex-end' : 'flex-start'
                         }}>
-                            [{new Date(msg.timestamp).toLocaleTimeString()}] {msg.senderName}
+                            <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px' }}>{msg.senderName}</div>
+                            <div style={{
+                                padding: '1rem',
+                                borderRadius: '12px',
+                                background: msg.senderId === userId ? 'var(--theme-gov)' : 'rgba(255, 255, 255, 0.1)',
+                                color: 'white',
+                                borderBottomRightRadius: msg.senderId === userId ? '2px' : '12px',
+                                borderBottomLeftRadius: msg.senderId === userId ? '12px' : '2px'
+                            }}>
+                                {msg.text}
+                            </div>
                         </div>
-                        <div style={{
-                            background: msg.senderId === userId ? 'rgba(30, 58, 138, 0.3)' : 'rgba(30, 41, 59, 0.4)',
-                            border: `1px solid ${msg.senderId === userId ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                            padding: '0.75rem',
+                    ))}
+                    <div ref={chatEndRef} />
+                </div>
+
+                {/* Input Area */}
+                <form onSubmit={handleSend} className="glass-panel" style={{ display: 'flex', gap: '1rem', padding: '1rem' }}>
+                    <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Enter secure message..."
+                        style={{
+                            flex: 1,
+                            background: 'rgba(0, 0, 0, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '8px',
+                            padding: '1rem',
                             color: 'white',
-                            fontSize: '0.9rem',
-                            borderTopRightRadius: msg.senderId === userId ? '0' : '8px',
-                            borderTopLeftRadius: msg.senderId === userId ? '8px' : '0',
-                            borderBottomRightRadius: '8px',
-                            borderBottomLeftRadius: '8px',
-                            boxShadow: msg.senderId === userId ? '0 0 10px rgba(30, 64, 175, 0.2)' : 'none'
-                        }}>
-                            {msg.text}
-                        </div>
-                    </div>
-                ))}
-                <div ref={chatEndRef}></div>
-            </div>
-
-            {/* Input Area */}
-            <form onSubmit={handleSend} style={{ display: 'flex', gap: '1rem' }}>
-                <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Enter command or message..."
-                    style={{
-                        flex: 1,
-                        background: 'rgba(15, 23, 42, 0.8)',
-                        border: '1px solid var(--color-border)',
-                        padding: '1rem',
+                            fontFamily: 'monospace',
+                            outline: 'none'
+                        }}
+                    />
+                    <button type="submit" className="btn-primary" style={{
+                        background: 'var(--theme-gov)',
                         color: 'white',
-                        fontFamily: 'monospace',
-                        outline: 'none'
-                    }}
-                />
-                <button type="submit" className="btn-primary" style={{
-                    background: 'var(--color-primary)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0 2rem'
-                }}>
-                    SEND
-                </button>
-            </form>
+                        border: 'none',
+                        padding: '0 2rem'
+                    }}>
+                        SEND
+                    </button>
+                </form>
 
-            <style>{`
+                <style>{`
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--color-border); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--glass-border); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--theme-gov); }
       `}</style>
-        </div>
+            </div>
+        </>
     );
 }

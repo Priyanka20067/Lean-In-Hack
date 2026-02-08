@@ -4,6 +4,7 @@ import { analyzeAnomaly } from '../services/ai';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { deleteDB } from 'idb';
+import Scene3D from '../components/Scene3D';
 
 export default function ReportPage() {
     const navigate = useNavigate();
@@ -26,9 +27,7 @@ export default function ReportPage() {
         };
         window.addEventListener('online', handleStatusChange);
         window.addEventListener('offline', handleStatusChange);
-
         loadHistory();
-
         return () => {
             window.removeEventListener('online', handleStatusChange);
             window.removeEventListener('offline', handleStatusChange);
@@ -47,10 +46,8 @@ export default function ReportPage() {
     const handleSubmit = async () => {
         if (!description.trim()) return;
 
-        setStatus('[ ANALYZING DATA... ]');
+        setStatus('_INITIALIZING GAIA_AI ANALYSIS');
         setIsAnalyzing(true);
-
-        // Simulate AI "Thinking"
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         const analysis = analyzeAnomaly(description);
@@ -69,26 +66,26 @@ export default function ReportPage() {
 
         try {
             const savedId = await saveAnomalyLocally(newAnomaly);
-            // Store the ID in state for the UI to use
             setLastReportId(savedId);
 
             if (isOnline && userId) {
-                setStatus('[ SYNCING TO CENTRAL NODE... ]');
+                setStatus('_SYNCING TO CENTRAL_VIRTUALIZATION_NODE');
                 await syncPendingItems(userId);
                 const { incrementUserPoints } = await import('../services/firestoreService');
                 await incrementUserPoints(userId, 10);
+                setStatus('_TRANSMISSION COMPLETE (+10 XP)');
+            } else {
+                setStatus('_DATA STORED LOCALLY');
             }
-
-            setStatus('[ TRANSMISSION SUCCESSFUL (+10 PTS) ]');
             loadHistory();
         } catch (e) {
             console.error(e);
-            setStatus(`[ ERROR: ${e.message.toUpperCase()} ]`);
+            setStatus(`_CRITICAL FAILURE: ${e.message.toUpperCase()}`);
         }
     };
 
     const handleHardReset = async () => {
-        if (confirm("THIS WILL WIPE THE LOCAL SECURE DATABASE. CONTINUE?")) {
+        if (confirm("Wipe all local secure data? This cannot be undone.")) {
             await deleteDB('hanex-db');
             window.location.reload();
         }
@@ -96,214 +93,139 @@ export default function ReportPage() {
 
     if (analysisResult) {
         return (
-            <div className="container animate-fade">
-                <div className="bg-grid"></div>
-                <div className="hud-border" style={{ padding: '2rem', textAlign: 'center' }}>
-                    <h2 className="mono glitch" style={{ color: 'var(--color-primary)', marginBottom: '1rem' }}>AI ANALYSIS COMPLETE</h2>
-                    <div style={{
-                        padding: '1.5rem',
-                        background: 'rgba(0,0,0,0.5)',
-                        border: `2px solid ${analysisResult.color}`,
-                        marginBottom: '2rem'
-                    }}>
-                        <p className="mono" style={{ fontSize: '0.8rem', color: 'var(--color-text-dim)' }}>DETECTED FIELD:</p>
-                        <h1 className="mono" style={{ color: analysisResult.color, textShadow: `0 0 10px ${analysisResult.color}` }}>
-                            {analysisResult.type.toUpperCase()}
-                        </h1>
-                        <p className="mono" style={{ fontSize: '0.7rem', marginTop: '1rem', opacity: 0.8 }}>
-                            CONFIDENCE: {analysisResult.confidence}% | URGENCY: {analysisResult.urgency}
-                        </p>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {analysisResult.type === 'Government' && (
-                            <button onClick={() => navigate('/map')} className="btn-primary" style={{ width: '100%', border: `1px solid ${analysisResult.color}` }}>
-                                ACCESS GOVERNMENT MAP &rarr;
-                            </button>
-                        )}
-                        {analysisResult.type === 'Job' && (
-                            <button
-                                onClick={() => navigate(`/jobs/suggestion/${lastReportId}`, { state: { description: description } })}
-                                className="btn-primary"
-                                style={{ width: '100%', border: `1px solid ${analysisResult.color}` }}
-                            >
-                                VIEW JOB OPPORTUNITIES &rarr;
-                            </button>
-                        )}
-                        {analysisResult.type === 'Health Tech' && (
-                            <button onClick={() => navigate('/health')} className="btn-primary" style={{ width: '100%', border: `1px solid ${analysisResult.color}` }}>
-                                ACCESS HEALTHCARE SUPPORT &rarr;
-                            </button>
-                        )}
-
-                        <div style={{ opacity: 0.5, pointerEvents: 'none' }}>
-                            <button disabled className="btn-primary" style={{ width: '100%', filter: 'grayscale(1)', marginBottom: '0.5rem' }}>RESTRICTED ACCESS</button>
-                            <button disabled className="btn-primary" style={{ width: '100%', filter: 'grayscale(1)' }}>RESTRICTED ACCESS</button>
+            <>
+                <Scene3D variant="gov" />
+                <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', padding: '2rem' }}>
+                    <div className="glass-panel" style={{ maxWidth: '600px', width: '100%', borderTop: `4px solid ${analysisResult.color}` }}>
+                        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                            <div style={{ fontSize: '0.8rem', color: '#94a3b8', letterSpacing: '4px', marginBottom: '1rem' }}>NEURAL ANALYSIS COMPLETE</div>
+                            <h2 style={{ fontSize: '2.5rem', color: 'white', marginBottom: '0.5rem' }}>SIGNATURE IDENTIFIED</h2>
                         </div>
 
-                        <button onClick={() => { setAnalysisResult(null); setDescription(''); setLocationName(''); setStatus(''); }} className="btn-primary" style={{ marginTop: '1rem', background: 'transparent', border: '1px solid var(--color-border)' }}>
-                            LOG ANOTHER ENTRY
-                        </button>
+                        <div style={{ padding: '2rem', background: 'rgba(0,0,0,0.3)', borderRadius: '16px', border: `1px solid ${analysisResult.color}`, marginBottom: '2.5rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.8rem', color: analysisResult.color, marginBottom: '0.5rem', fontWeight: 'bold', textTransform: 'uppercase' }}>DETECTED CLASS</div>
+                            <h1 style={{ fontSize: '3rem', color: 'white', textShadow: `0 0 20px ${analysisResult.color}` }}>{analysisResult.type.toUpperCase()}</h1>
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1.5rem', color: '#cbd5e1', fontSize: '0.85rem' }}>
+                                <span>CONFIDENCE: {analysisResult.confidence}%</span>
+                                <span>URGENCY: {analysisResult.urgency?.toUpperCase()}</span>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            {analysisResult.type === 'Government' && (
+                                <button onClick={() => navigate('/map')} className="btn-3d" style={{ background: analysisResult.color, borderColor: analysisResult.color }}>OPEN TACTICAL MAP</button>
+                            )}
+                            {analysisResult.type === 'Job' && (
+                                <button onClick={() => navigate(`/jobs/suggestion/${lastReportId}`, { state: { description } })} className="btn-3d" style={{ background: analysisResult.color, borderColor: analysisResult.color }}>EXPLORE CAREER PATHS</button>
+                            )}
+                            {analysisResult.type === 'Health Tech' && (
+                                <button onClick={() => navigate('/health')} className="btn-3d" style={{ background: analysisResult.color, borderColor: analysisResult.color }}>INITIATE MEDICAL SCAN</button>
+                            )}
+
+                            <button onClick={() => { setAnalysisResult(null); setDescription(''); setLocationName(''); setStatus(''); }} className="btn-3d" style={{ opacity: 0.6 }}>NEW FIELD REPORT</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </>
         );
     }
 
     return (
-        <div className="container animate-fade">
-            <div className="bg-grid"></div>
+        <>
+            <Scene3D variant="gov" />
+            <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '2rem' }}>
 
-            <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <div>
-                    <h2 className="mono" style={{ color: 'var(--color-primary)', fontSize: '1.2rem', marginBottom: '0.2rem' }}>
-                        FIELD_LOG_ENTRY
-                    </h2>
-                    <div className="mono" style={{ fontSize: '0.6rem', color: 'var(--color-secondary)' }}>
-                        OPERATOR: AGENT_{userId?.substring(0, 5).toUpperCase()}
+                <header style={{ marginBottom: '3rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1.5rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--theme-gov)', letterSpacing: '4px', fontWeight: 'bold', marginBottom: '0.5rem' }}>OPERATIVE FIELD LOG</div>
+                    <h1 style={{ fontSize: '2.5rem', color: 'white' }}>DATA_INGESTION</h1>
+                    <div style={{ fontSize: '0.7rem', color: isOnline ? '#10b981' : '#f87171', marginTop: '0.5rem' }}>
+                        SECURE_LINK: {isOnline ? 'ESTABLISHED' : 'LOCAL_VIRTUALIZATION_ONLY'}
                     </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                    <div className="mono" style={{ fontSize: '0.6rem', color: isOnline ? 'var(--color-secondary)' : 'var(--color-danger)' }}>
-                        LINK: {isOnline ? 'ENCRYPTED' : 'OFFLINE'}
-                    </div>
-                </div>
-            </div>
+                </header>
 
-            <div className="hud-border" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
-                {isAnalyzing && (
-                    <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'rgba(0,0,0,0.8)',
-                        zIndex: 200,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}>
-                        <div className="loader-ah"></div>
-                        <p className="mono glitch" style={{ marginTop: '1rem', color: 'var(--color-primary)' }}>RUNNING GAIA_AI ANALYSIS...</p>
-                    </div>
-                )}
-                {/* Classified Stamp */}
-                <div style={{
-                    position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    border: '2px solid var(--color-danger)',
-                    color: 'var(--color-danger)',
-                    padding: '2px 8px',
-                    fontSize: '0.6rem',
-                    fontWeight: 'bold',
-                    transform: 'rotate(15deg)',
-                    opacity: 0.5,
-                    pointerEvents: 'none',
-                    fontFamily: 'JetBrains Mono'
-                }}>
-                    CLASSIFIED
-                </div>
-
-                <p className="mono" style={{ fontSize: '0.7rem', color: 'var(--color-text-dim)', marginBottom: '0.5rem' }}>
-                    SPECIFY LOCATION / SECTOR:
-                </p>
-                <input
-                    type="text"
-                    style={{
-                        width: '100%',
-                        background: 'rgba(0,0,0,0.5)',
-                        border: '1px solid var(--color-border)',
-                        color: 'var(--color-text)',
-                        padding: '0.75rem',
-                        fontFamily: 'JetBrains Mono',
-                        fontSize: '0.8rem',
-                        marginBottom: '1rem',
-                        outline: 'none',
-                    }}
-                    placeholder="e.g. Starcourt Mall, Sector 7-G..."
-                    value={locationName}
-                    onChange={(e) => setLocationName(e.target.value)}
-                />
-
-                <p className="mono" style={{ fontSize: '0.7rem', color: 'var(--color-text-dim)', marginBottom: '0.5rem' }}>
-                    DESCRIBE DETECTED PHENOMENON:
-                </p>
-
-                <textarea
-                    style={{
-                        width: '100%',
-                        background: 'rgba(0,0,0,0.5)',
-                        border: '1px solid var(--color-border)',
-                        color: 'var(--color-text)',
-                        padding: '1rem',
-                        fontFamily: 'JetBrains Mono',
-                        fontSize: '0.9rem',
-                        resize: 'none',
-                        marginBottom: '1.5rem',
-                        outline: 'none',
-                        minHeight: '120px'
-                    }}
-                    placeholder="Input data stream..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                ></textarea>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <button onClick={handleVoiceInput} disabled={isAnalyzing} className="btn-primary" style={{ border: '1px solid var(--color-border)', color: 'var(--color-text-dim)', background: 'transparent', boxShadow: 'none' }}>
-                        🎤 AUDIO_FEED
-                    </button>
-                    <button onClick={handleSubmit} disabled={isAnalyzing} className="btn-primary">
-                        TRANSMIT &rarr;
-                    </button>
-                </div>
-            </div>
-
-            {status && (
-                <div className="mono" style={{
-                    marginTop: '1.5rem',
-                    textAlign: 'center',
-                    fontSize: '0.8rem',
-                    color: status.includes('ERROR') ? 'var(--color-danger)' : 'var(--color-primary)'
-                }}>
-                    {status}
-                </div>
-            )}
-
-            {/* Database Summary Section */}
-            <div style={{ marginTop: '3rem' }}>
-                <h3 className="mono" style={{ fontSize: '0.8rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem', marginBottom: '1rem', color: 'var(--color-text-dim)' }}>
-                    RECENT_TRANSMISSIONS
-                </h3>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {recentLogs.map((log, i) => (
-                        <div key={i} className="mono" style={{
-                            fontSize: '0.7rem',
-                            padding: '0.5rem',
-                            background: 'rgba(30, 41, 59, 0.2)',
-                            borderLeft: `2px solid ${log.urgency === 'High' ? 'var(--color-danger)' : 'var(--color-secondary)'}`,
-                            display: 'flex',
-                            justifyContent: 'space-between'
-                        }}>
-                            <div>
-                                <span style={{ color: 'var(--color-text-dim)' }}>[{new Date(log.timestamp).toLocaleTimeString()}]</span>
-                                <span style={{ marginLeft: '1rem' }}>{log.type}/{log.urgency}</span>
-                            </div>
-                            <div style={{ color: log.syncStatus === 'synced' ? 'var(--color-secondary)' : 'var(--color-accent)' }}>
-                                {log.syncStatus === 'synced' ? 'SYNCED' : 'PENDING'}
-                            </div>
+                <div className="glass-panel" style={{ maxWidth: '800px', width: '100%', margin: '0 auto', padding: '3rem', position: 'relative' }}>
+                    {isAnalyzing && (
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.9)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRadius: '16px' }}>
+                            <div className="animate-spin" style={{ width: '40px', height: '40px', border: '4px solid var(--theme-gov)', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '1.5rem' }}></div>
+                            <p style={{ color: 'var(--theme-gov)', letterSpacing: '2px', fontWeight: 'bold' }}>RUNNING NEURAL ANALYSIS...</p>
                         </div>
-                    ))}
-                    {recentLogs.length === 0 && <p className="mono" style={{ fontSize: '0.7rem', color: '#444' }}>NO PREVIOUS DATA FOUND</p>}
+                    )}
+
+                    <div style={{ marginBottom: '2rem' }}>
+                        <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'bold', display: 'block', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Sector Identification</label>
+                        <input
+                            type="text"
+                            value={locationName}
+                            onChange={(e) => setLocationName(e.target.value)}
+                            placeholder="e.g. STARCOURT_NODES / SECTOR_7G"
+                            style={{
+                                width: '100%',
+                                background: 'rgba(0,0,0,0.3)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '8px',
+                                padding: '1.25rem',
+                                color: 'white',
+                                fontFamily: 'monospace',
+                                fontSize: '1rem',
+                                outline: 'none'
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: '2.5rem' }}>
+                        <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'bold', display: 'block', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Phenomenon Stream Description</label>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Input comprehensive field observation data..."
+                            style={{
+                                width: '100%',
+                                minHeight: '180px',
+                                background: 'rgba(0,0,0,0.3)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '8px',
+                                padding: '1.5rem',
+                                color: 'white',
+                                fontFamily: 'monospace',
+                                fontSize: '1rem',
+                                outline: 'none',
+                                resize: 'none',
+                                lineHeight: '1.6'
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        <button onClick={handleVoiceInput} disabled={isAnalyzing} className="btn-3d" style={{ opacity: 0.6 }}>AUDIO_SYNC_FEED</button>
+                        <button onClick={handleSubmit} disabled={isAnalyzing || !description.trim()} className="btn-3d" style={{ background: 'var(--theme-gov)', borderColor: 'var(--theme-gov)' }}>TRANSMIT_DATA</button>
+                    </div>
+
+                    {status && (
+                        <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--theme-gov)', fontFamily: 'monospace', opacity: 0.8 }}>
+                            {status}
+                        </div>
+                    )}
+                </div>
+
+                <div style={{ maxWidth: '800px', width: '100%', margin: '4rem auto 0' }}>
+                    <h3 style={{ fontSize: '0.8rem', color: '#64748b', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem', marginBottom: '1.5rem', letterSpacing: '2px' }}>RECENT_TRANSMISSIONS</h3>
+                    <div style={{ display: 'grid', gap: '0.75rem' }}>
+                        {recentLogs.map((log, i) => (
+                            <div key={i} className="glass-panel" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', borderLeft: `3px solid ${log.urgency === 'High' ? '#ef4444' : 'var(--theme-gov)'}` }}>
+                                <div>
+                                    <span style={{ color: '#64748b', fontFamily: 'monospace' }}>[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                                    <span style={{ marginLeft: '1.5rem', color: 'white', fontWeight: 'bold' }}>{log.type?.toUpperCase()} / {log.urgency?.toUpperCase()}</span>
+                                </div>
+                                <span style={{ color: log.syncStatus === 'synced' ? '#10b981' : 'var(--theme-gov)', fontSize: '0.7rem', fontWeight: 'bold' }}>{log.syncStatus?.toUpperCase()}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div style={{ textAlign: 'center', marginTop: '5rem', paddingBottom: '3rem' }}>
+                    <button onClick={handleHardReset} style={{ background: 'transparent', border: 'none', color: '#f87171', fontSize: '0.7rem', textDecoration: 'underline', cursor: 'pointer', opacity: 0.5 }}>WIPE_LOCAL_DATAVAULT</button>
                 </div>
             </div>
-
-            <div style={{ marginTop: '3rem', textAlign: 'center' }}>
-                <button onClick={handleHardReset} className="btn-primary btn-danger" style={{ fontSize: '0.6rem', padding: '0.4rem 1rem' }}>
-                    WIPE_LOCAL_DATAVAULT
-                </button>
-            </div>
-
-        </div>
+        </>
     );
 }

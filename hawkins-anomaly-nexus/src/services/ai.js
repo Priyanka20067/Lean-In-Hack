@@ -3,25 +3,25 @@ const KEYWORDS = {
         high: ['monster', 'demogorgon', 'gate', 'upside down', 'fleece', 'shadow', 'tentacle', 'portal', 'rifts', 'creature'],
         medium: ['lights', 'flickering', 'noise', 'static', 'electrical', 'magnetic', 'compass', 'batteries'],
         low: ['weird', 'strange', 'cold', 'missing'],
-        color: '#a855f7' // Purple/Accent
+        color: '#f472b6' // Pink/Magenta
     },
     'Health Tech': {
         high: ['blood', 'unconscious', 'breathing', 'seizure', 'collapsed', 'poison', 'bite', 'death', 'hospital', 'doctor', 'ambulance', 'clinic', 'virus', 'infection'],
         medium: ['sick', 'fever', 'vomit', 'pain', 'infection', 'slime', 'rash', 'medicine', 'patient'],
         low: ['cough', 'dizzy', 'tired', 'headache', 'pharmacy', 'checkup'],
-        color: '#ef4444' // Red/Danger
+        color: '#10b981' // Green (per user request)
     },
     'Government': {
         high: ['illegal', 'weapon', 'spy', 'russian', 'lab', 'hawkins power', 'military', 'conspiracy', 'government', 'cia', 'fbi', 'department of energy'],
         medium: ['theft', 'break-in', 'vandalism', 'shutdown', 'curfew', 'police', 'sheriff', 'mayor'],
         low: ['noise', 'litter', 'graffiti', 'protest', 'town hall', 'meeting'],
-        color: '#3b82f6' // Blue/Primary
+        color: '#3b82f6' // Blue (per user request)
     },
     'Job': {
         high: ['hiring', 'vacancy', 'recruitment', 'application', 'resume', 'cv', 'interview', 'salary', 'contract', 'developer', 'software', 'engineer', 'frontend', 'backend', 'fullstack'],
         medium: ['position', 'role', 'job', 'work', 'employment', 'career', 'opportunity', 'react', 'node', 'css', 'javascript', 'python', 'code', 'coding', 'programming', 'bug', 'glitch'],
         low: ['boss', 'manager', 'office', 'staff', 'computer', 'screen', 'terminal', 'interface'],
-        color: '#10b981' // Green/Emerald
+        color: '#a855f7' // Purple (per user request)
     }
 };
 

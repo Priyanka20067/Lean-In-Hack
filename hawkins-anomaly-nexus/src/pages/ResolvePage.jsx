@@ -4,6 +4,7 @@ import { updateAnomalyStatus } from '../services/firestoreService';
 import { doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
+import Scene3D from '../components/Scene3D';
 
 export default function ResolvePage() {
     const { id } = useParams();
@@ -18,13 +19,17 @@ export default function ResolvePage() {
 
             // 2. Add Points to User Profile (Real Transaction)
             if (userId) {
-                const userRef = doc(db, 'users', userId);
-                await updateDoc(userRef, {
-                    points: increment(50)
-                });
+                try {
+                    const userRef = doc(db, 'users', userId);
+                    await updateDoc(userRef, {
+                        points: increment(50)
+                    });
+                } catch (e) {
+                    console.error("Failed to update points:", e);
+                }
             }
 
-            // 3. Show Score
+            // 3. Show Score After delay
             setTimeout(() => {
                 setShowScore(true);
             }, 3000);
@@ -34,71 +39,57 @@ export default function ResolvePage() {
     }, [id, userId]);
 
     return (
-        <div className="container" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100vh',
-            textAlign: 'center',
-            overflow: 'hidden'
-        }}>
+        <>
+            <Scene3D variant="gov" />
+            <div className="container animate-fade" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', padding: '2rem' }}>
 
-            {!showScore ? (
-                <>
-                    <h2 className="glow-text">CLOSING GATE...</h2>
-                    <div className="portal-container">
-                        <div className="portal"></div>
-                    </div>
-                </>
-            ) : (
-                <div style={{ animation: 'fadeIn 1s ease' }}>
-                    <h1 style={{ color: '#4caf50', textShadow: '0 0 20px #4caf50', fontSize: '3rem' }}>
-                        MONSTER DEFEATED
-                    </h1>
-                    <p style={{ fontSize: '1.5rem', marginTop: '20px' }}>
-                        +50 POINTS
-                    </p>
-                    <div style={{ marginTop: '40px' }}>
-                        <button onClick={() => navigate('/map')} className="btn-primary">
-                            RETURN TO MAP
-                        </button>
-                        <br /><br />
-                        <button onClick={() => navigate('/profile')} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer' }}>
-                            VIEW PROFILE
-                        </button>
-                    </div>
-                </div>
-            )}
+                {!showScore ? (
+                    <div className="glass-panel" style={{ maxWidth: '400px', width: '100%', textAlign: 'center', padding: '3rem' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--theme-gov)', letterSpacing: '4px', marginBottom: '2rem', fontWeight: 'bold' }}>INITIATING_CONTAINMENT</div>
 
-            <style>{`
-        .portal-container {
-          position: relative;
-          width: 300px;
-          height: 300px;
-          margin-top: 20px;
-        }
-        .portal {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          background: radial-gradient(circle, #000 20%, #ff0033 80%);
-          box-shadow: 0 0 50px #ff0033, inset 0 0 50px #000;
-          animation: closePortal 3s forwards;
-        }
-        @keyframes closePortal {
-          0% { transform: scale(1); opacity: 1; filter: brightness(1.5); }
-          50% { transform: scale(0.5) rotate(180deg); opacity: 0.8; }
-          100% { transform: scale(0); opacity: 0; }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-        </div>
+                        <div className="portal-container" style={{ position: 'relative', width: '200px', height: '200px', margin: '0 auto 2rem' }}>
+                            <div className="portal"></div>
+                            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div className="animate-spin" style={{ width: '100px', height: '100px', border: '2px solid var(--theme-gov)', borderTopColor: 'transparent', borderRadius: '50%' }}></div>
+                            </div>
+                        </div>
+
+                        <h2 style={{ color: 'white', fontSize: '1.2rem', fontFamily: 'monospace' }}>SEALING DIMENSIONAL NODE...</h2>
+                    </div>
+                ) : (
+                    <div className="glass-panel animate-fade" style={{ maxWidth: '500px', width: '100%', textAlign: 'center', borderTop: '4px solid #10b981', padding: '4rem 2rem' }}>
+                        <div style={{ fontSize: '0.9rem', color: '#10b981', letterSpacing: '4px', marginBottom: '1.5rem', fontWeight: 'bold' }}>SUCCESS_RESOLVED</div>
+                        <h1 style={{ fontSize: '3rem', color: 'white', marginBottom: '1rem' }}>NODE_CLEANSED</h1>
+                        <p style={{ color: '#94a3b8', marginBottom: '3rem' }}>Dimensional stability has been restored to this sector. Your assistance has been logged.</p>
+
+                        <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10b981', borderRadius: '12px', padding: '1.5rem', marginBottom: '3rem' }}>
+                            <div style={{ fontSize: '0.8rem', color: '#10b981', marginBottom: '0.5rem' }}>CREDENTIALS_UPDATED</div>
+                            <div style={{ fontSize: '2.5rem', color: 'white', fontWeight: 'bold' }}>+50 XP</div>
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            <button onClick={() => navigate('/map')} className="btn-3d" style={{ background: 'var(--theme-gov)', borderColor: 'var(--theme-gov)' }}>RETURN TO OPERATIONAL MAP</button>
+                            <button onClick={() => navigate('/profile')} className="btn-3d" style={{ opacity: 0.6 }}>VIEW UPDATED PROFILE</button>
+                        </div>
+                    </div>
+                )}
+
+                <style>{`
+                    .portal {
+                        position: absolute;
+                        inset: 40px;
+                        border-radius: 50%;
+                        background: radial-gradient(circle, #000 20%, #38bdf8 80%);
+                        box-shadow: 0 0 50px #38bdf8, inset 0 0 50px #000;
+                        animation: closePortal 3s forwards;
+                    }
+                    @keyframes closePortal {
+                        0% { transform: scale(1); opacity: 1; filter: brightness(2); }
+                        50% { transform: scale(0.6); opacity: 0.8; }
+                        100% { transform: scale(0); opacity: 0; }
+                    }
+                `}</style>
+            </div>
+        </>
     );
 }
