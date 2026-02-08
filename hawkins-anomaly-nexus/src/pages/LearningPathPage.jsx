@@ -27,6 +27,11 @@ const DEFAULT_PATHS = {
         { id: 's1', title: 'OSI Model', desc: '7 layers of networking.' },
         { id: 's2', title: 'Firewalls & Ports', desc: 'Controlling traffic flow.' },
         { id: 's3', title: 'Encryption Basics', desc: 'Symmetric vs Asymmetric keys.' }
+    ],
+    'UI_UX': [
+        { id: 'u1', title: 'Wireframing', desc: 'Blueprints for design.' },
+        { id: 'u2', title: 'Color Theory', desc: 'Understanding palettes.' },
+        { id: 'u3', title: 'Typography', desc: 'Fonts and readability.' }
     ]
 };
 
@@ -190,7 +195,7 @@ export default function LearningPathPage() {
                             Completing this track will unlock the <strong>{activeSkill} Verification Challenge</strong>.
                         </p>
                         <button
-                            onClick={() => navigate(`/jobs/challenge/${activeSkill}`)}
+                            onClick={() => navigate(`/jobs/challenge/${anomalyId}/${activeSkill}`)}
                             className="btn-primary"
                             style={{
                                 background: '#10b981',
