@@ -33,9 +33,23 @@ export default function LandingPage() {
                 <button
                     onClick={() => navigate('/map')}
                     className="btn-primary"
-                    style={{ width: '100%', justifyContent: 'center' }}
+                    style={{ width: '100%', justifyContent: 'center', marginBottom: '1rem' }}
                 >
-                    SECURE ACCESS &rarr;
+                    SECURE ACCESS (MAP) &rarr;
+                </button>
+
+                <button
+                    onClick={() => navigate('/report')}
+                    className="btn-primary"
+                    style={{
+                        width: '100%',
+                        justifyContent: 'center',
+                        background: 'transparent',
+                        border: '1px solid var(--color-danger)',
+                        color: 'var(--color-danger)'
+                    }}
+                >
+                    REPORT ANOMALY &rarr;
                 </button>
 
                 <p className="mono" style={{ marginTop: '2rem', fontSize: '0.6rem', color: 'var(--color-danger)', opacity: 0.7 }}>
