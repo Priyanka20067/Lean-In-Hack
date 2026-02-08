@@ -7,13 +7,13 @@ const KEYWORDS = {
     },
     'Health Tech': {
         high: ['blood', 'unconscious', 'breathing', 'seizure', 'collapsed', 'poison', 'bite', 'death', 'hospital', 'doctor', 'ambulance', 'clinic', 'virus', 'infection'],
-        medium: ['sick', 'fever', 'vomit', 'pain', 'infection', 'slime', 'rash', 'medicine', 'patient'],
+        medium: ['sick', 'fever', 'vomit', 'pain', 'infection', 'slime', 'rash', 'medicine', 'patient', 'cold'],
         low: ['cough', 'dizzy', 'tired', 'headache', 'pharmacy', 'checkup'],
         color: '#10b981' // Green (per user request)
     },
     'Government': {
-        high: ['illegal', 'weapon', 'spy', 'russian', 'lab', 'hawkins power', 'military', 'conspiracy', 'government', 'cia', 'fbi', 'department of energy'],
-        medium: ['theft', 'break-in', 'vandalism', 'shutdown', 'curfew', 'police', 'sheriff', 'mayor'],
+        high: ['illegal', 'weapon', 'spy', 'russian', 'lab', 'hawkins power', 'military', 'conspiracy', 'government', 'cia', 'fbi', 'department of energy', 'area'],
+        medium: ['theft', 'break-in', 'vandalism', 'shutdown', 'curfew', 'police', 'sheriff', 'mayor', 'street', 'light'],
         low: ['noise', 'litter', 'graffiti', 'protest', 'town hall', 'meeting'],
         color: '#3b82f6' // Blue (per user request)
     },
