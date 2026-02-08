@@ -13,16 +13,7 @@ export default function SkillProfilePage() {
         const loadProfile = async () => {
             if (userId) {
                 const data = await getUserSkillProfile(userId);
-                // Mock data if empty for prototype
-                if (!data) {
-                    setProfile({
-                        skills: { 'React': 120, 'Node.js': 50 },
-                        badges: ['Novice Coder'],
-                        level: 'Agent In-Training'
-                    });
-                } else {
-                    setProfile(data);
-                }
+                setProfile(data);
             }
             setLoading(false);
         };
