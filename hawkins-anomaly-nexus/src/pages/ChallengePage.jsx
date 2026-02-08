@@ -5,27 +5,48 @@ import { useAuth } from '../context/AuthContext';
 
 const DEFAULT_CHALLENGES = {
     'React': {
-        question: "Create a functional component named 'Welcome' that accepts a 'name' prop and returns an h1 tag saying 'Hello, {name}!'",
-        template: "function Welcome(props) {\n  // Write your code here\n}",
-        validate: (code) => code.includes('function Welcome') && code.includes('return') && code.includes('<h1>') && code.includes('Hello') && code.includes('props.name'),
-        timeLimit: 300 // 5 mins
+        question: "Create a functional component named 'Welcome' that accepts a 'name' prop.",
+        template: "function Welcome(props) {\n  return <h1>Hello, {props.name}</h1>;\n}",
+        validate: (code) => {
+            const c = code.replace(/\s/g, '').toLowerCase();
+            return c.includes('functionwelcome') && c.includes('return') && c.includes('props.name');
+        },
+        timeLimit: 300
     },
     'Node.js': {
-        question: "Write a function 'readFile' that uses fs.promises to read 'data.txt' and returns the content.",
-        template: "const fs = require('fs').promises;\n\nasync function readFile() {\n  // Write your code here\n}",
-        validate: (code) => code.includes('fs.readFile') && code.includes('data.txt') && code.includes('return'),
+        question: "Write a function 'readFile' that uses fs.promises to read 'data.txt'.",
+        template: "const fs = require('fs').promises;\n\nasync function readFile() {\n  return await fs.readFile('data.txt');\n}",
+        validate: (code) => {
+            const c = code.replace(/\s/g, '').toLowerCase();
+            return c.includes('fs.readfile') && c.includes('data.txt');
+        },
         timeLimit: 300
     },
     'Python': {
-        question: "Write a function 'reverse_string' that takes a string 's' and returns it reversed.",
-        template: "def reverse_string(s):\n  # Write your code here\n  pass",
-        validate: (code) => code.includes('return') && code.includes('[::-1]'),
+        question: "Write a function 'reverse_string' that returns a reversed string.",
+        template: "def reverse_string(s):\n  return s[::-1]",
+        validate: (code) => code.includes('[::-1]'),
+        timeLimit: 180
+    },
+    'CSS': {
+        question: "Center a div using Flexbox.",
+        template: ".container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}",
+        validate: (code) => {
+            const c = code.replace(/\s/g, '').toLowerCase();
+            return c.includes('display:flex') && c.includes('justify-content:center');
+        },
+        timeLimit: 180
+    },
+    'UI_UX': {
+        question: "List 3 principles of good design in the comments.",
+        template: "// 1. Contrast\n// 2. Balance\n// 3. Emphasis",
+        validate: (code) => code.length > 20,
         timeLimit: 180
     }
 };
 
 export default function ChallengePage() {
-    const { skill } = useParams();
+    const { skill, anomalyId } = useParams();
     const navigate = useNavigate();
     const { userId } = useAuth();
 
@@ -169,7 +190,22 @@ export default function ChallengePage() {
                 )}
 
                 <button
-                    onClick={() => navigate('/profile/skills')}
+                    onClick={() => {
+                        const roleMap = {
+                            'React': 'Frontend Developer',
+                            'CSS': 'Frontend Developer',
+                            'UI_UX': 'Frontend Developer',
+                            'Node.js': 'Backend Developer',
+                            'Python': 'Data Analyst'
+                        };
+                        const role = roleMap[skill] || 'Frontend Developer';
+
+                        if (anomalyId) {
+                            navigate(`/jobs/interview/${anomalyId}/${role}`);
+                        } else {
+                            navigate(`/jobs/interview/${role}`);
+                        }
+                    }}
                     style={{
                         padding: '1rem 2rem',
                         background: 'transparent',
@@ -180,7 +216,7 @@ export default function ChallengePage() {
                         display: status === 'SUCCESS' ? 'block' : 'none'
                     }}
                 >
-                    View Profile
+                    Proceed to Interview &rarr;
                 </button>
 
                 <button
