@@ -21,7 +21,7 @@ const DEFAULT_QUESTIONS = {
 };
 
 export default function InterviewPage() {
-    const { role } = useParams();
+    const { role, anomalyId } = useParams();
     const navigate = useNavigate();
     const { userId } = useAuth();
 
@@ -31,12 +31,48 @@ export default function InterviewPage() {
     const [scores, setScores] = useState([]);
     const [finished, setFinished] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [anomalyDesc, setAnomalyDesc] = useState('');
 
     useEffect(() => {
-        // In prod: await getInterviewQuestions(role);
-        const qData = DEFAULT_QUESTIONS[role] || DEFAULT_QUESTIONS['Frontend Developer'];
-        setQuestions(qData);
-    }, [role]);
+        const initInterview = async () => {
+            // 1. Fetch Anomaly Details for Context
+            let desc = '';
+            let questions = [];
+
+            if (anomalyId) {
+                const { getJobSuggestion } = await import('../services/jobService'); // Dynamic import to avoid cycles if any
+                // Actually jobService.js -> getJobSuggestion is for suggestions, we need the original anomaly
+                // But wait, the anomaly text was saved in 'anomalies' collection? 
+                // Let's assume we can pass it or fetch it.
+                // For now, let's use a simpler approach: 
+                // We will use the 'AI' service to generate questions based on the role and a simulated context if we can't fetch easily.
+                // BUT, the goal is "realated question".
+                // Let's try to fetch the suggestion which usually has the 'reason' or the original text?
+                // Actually report saving: `addDoc(collection(db, 'anomalies'), ...)`
+                // So we can fetch from 'anomalies'.
+
+                try {
+                    const { doc, getDoc } = await import('firebase/firestore');
+                    const { db } = await import('../services/firebase');
+                    const anomalyRef = doc(db, 'anomalies', anomalyId);
+                    const anomalySnap = await getDoc(anomalyRef);
+                    if (anomalySnap.exists()) {
+                        desc = anomalySnap.data().description;
+                        setAnomalyDesc(desc);
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch anomaly context:", err);
+                }
+            }
+
+            // 2. Generate Questions
+            const { generateInterviewQuestions } = await import('../services/ai');
+            const generatedQs = generateInterviewQuestions(role, desc);
+            setQuestions(generatedQs);
+        };
+
+        initInterview();
+    }, [role, anomalyId]);
 
     const handleNext = async () => {
         if (!answer.trim()) return;
