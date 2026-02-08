@@ -18,9 +18,9 @@ const KEYWORDS = {
         color: '#3b82f6' // Blue/Primary
     },
     'Job': {
-        high: ['hiring', 'vacancy', 'recruitment', 'application', 'resume', 'cv', 'interview', 'salary', 'contract'],
-        medium: ['position', 'role', 'job', 'work', 'employment', 'career', 'opportunity'],
-        low: ['boss', 'manager', 'office', 'staff'],
+        high: ['hiring', 'vacancy', 'recruitment', 'application', 'resume', 'cv', 'interview', 'salary', 'contract', 'developer', 'software', 'engineer', 'frontend', 'backend', 'fullstack'],
+        medium: ['position', 'role', 'job', 'work', 'employment', 'career', 'opportunity', 'react', 'node', 'css', 'javascript', 'python', 'code', 'coding', 'programming', 'bug', 'glitch'],
+        low: ['boss', 'manager', 'office', 'staff', 'computer', 'screen', 'terminal', 'interface'],
         color: '#10b981' // Green/Emerald
     }
 };
@@ -73,4 +73,67 @@ export const analyzeAnomaly = (text) => {
     };
 
     return result;
+};
+// 🟦 AI INTERVIEW GENERATOR
+export const generateInterviewQuestions = (role, anomalyDescription) => {
+    const desc = anomalyDescription.toLowerCase();
+    const questions = [];
+
+    // Base knowledge questions (always included)
+    const baseQuestions = {
+        'Frontend Developer': [
+            { q: "Explain the Virtual DOM in React.", keywords: ['diff', 'tree', 'reconciliation'] },
+            { q: "What is the difference between state and props?", keywords: ['mutable', 'immutable', 'parent'] }
+        ],
+        'Backend Developer': [
+            { q: "Explain the event loop in Node.js.", keywords: ['single', 'thread', 'queue'] },
+            { q: "Difference between SQL and NoSQL?", keywords: ['relational', 'schema', 'document'] }
+        ],
+        'Data Analyst': [
+            { q: "Explain p-value in statistics.", keywords: ['hypothesis', 'null', 'significance'] },
+            { q: "What is data cleaning?", keywords: ['missing', 'duplicate', 'error'] }
+        ]
+    };
+
+    // Context-aware dynamic questions
+    if (desc.includes('glitch') || desc.includes('visual') || desc.includes('css')) {
+        questions.push({
+            q: "The anomaly report mentions visual glitches. How would you debug CSS z-index issues?",
+            keywords: ['stacking', 'context', 'position', 'layer']
+        });
+    }
+
+    if (desc.includes('slow') || desc.includes('latency') || desc.includes('performance')) {
+        questions.push({
+            q: "The system is experiencing latency as noted in the report. How do you optimize React performance?",
+            keywords: ['memo', 'lazy', 'render', 'optimization']
+        });
+    }
+
+    if (desc.includes('database') || desc.includes('data') || desc.includes('corrupt')) {
+        questions.push({
+            q: "Data corruption was detected. How do you ensure data integrity in a database transaction?",
+            keywords: ['acid', 'atomicity', 'consistency', 'rollback']
+        });
+    }
+
+    if (desc.includes('api') || desc.includes('connection') || desc.includes('network')) {
+        questions.push({
+            q: "Network instability is affecting the API. How do you handle retry logic in REST calls?",
+            keywords: ['exponential', 'backoff', 'status', 'timeout']
+        });
+    }
+
+    if (desc.includes('security') || desc.includes('breach') || desc.includes('hack')) {
+        questions.push({
+            q: "Security breach detected. explain XSS and how to prevent it.",
+            keywords: ['sanitize', 'input', 'script', 'injection']
+        });
+    }
+
+    // Combine base questions with dynamic ones (max 3 total)
+    const roleBase = baseQuestions[role] || baseQuestions['Frontend Developer'];
+    const failures = [...roleBase, ...questions].slice(0, 3);
+
+    return failures;
 };
