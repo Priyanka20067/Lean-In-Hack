@@ -12,7 +12,8 @@ import {
     serverTimestamp,
     onSnapshot,
     updateDoc,
-    increment
+    increment,
+    arrayUnion
 } from 'firebase/firestore';
 
 // 🟦 JOB SUGGESTIONS
@@ -87,8 +88,13 @@ export const saveChallengeResult = async (userId, result) => {
 
         // Also update global user skills/points
         const userSkillRef = doc(db, 'userSkills', userId);
+
+        // Use setDoc with merge to ensure document exists
         await setDoc(userSkillRef, {
-            [result.skill]: increment(result.score),
+            skills: {
+                [result.skill]: increment(result.score)
+            },
+            points: increment(result.score),
             lastUpdated: serverTimestamp()
         }, { merge: true });
 
@@ -117,6 +123,15 @@ export const saveInterviewScore = async (userId, role, score) => {
             score,
             completedAt: serverTimestamp()
         });
+
+        // Update User Profile with Interview Score (Weighted)
+        const userSkillRef = doc(db, 'userSkills', userId);
+        await setDoc(userSkillRef, {
+            points: increment(score),
+            badges: arrayUnion('Interview Passed'), // Requires arrayUnion import
+            lastUpdated: serverTimestamp()
+        }, { merge: true });
+
     } catch (e) {
         console.error("Error saving interview score:", e);
     }
@@ -127,10 +142,16 @@ export const getUserSkillProfile = async (userId) => {
     try {
         const docRef = doc(db, 'userSkills', userId);
         const docSnap = await getDoc(docRef);
-        return docSnap.exists() ? docSnap.data() : null;
+
+        if (docSnap.exists()) {
+            return docSnap.data();
+        } else {
+            // Return empty structure instead of null to prevent UI errors
+            return { skills: {}, badges: [], points: 0, level: 'Recruit' };
+        }
     } catch (e) {
         console.error("Error getting user skill profile:", e);
-        return null;
+        return { skills: {}, badges: [], points: 0, level: 'Recruit' };
     }
 };
 
