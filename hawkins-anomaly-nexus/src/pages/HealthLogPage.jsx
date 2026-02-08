@@ -67,6 +67,28 @@ export default function HealthLogPage() {
                             <p style={{ fontSize: '0.85rem', color: '#2d3748' }}>{log.guidance?.causes.join(' | ')}</p>
                             <p style={{ fontSize: '0.8rem', color: '#4a5568', marginTop: '0.25rem' }}>{log.guidance?.tips.join(' | ')}</p>
                         </div>
+
+                        <button
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                if (window.confirm('Delete this record?')) {
+                                    const { deleteHealthRecord } = await import('../services/healthService');
+                                    await deleteHealthRecord(log.id);
+                                    setLogs(prev => prev.filter(l => l.id !== log.id));
+                                }
+                            }}
+                            style={{
+                                marginTop: '1rem',
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#e53e3e',
+                                fontSize: '0.75rem',
+                                cursor: 'pointer',
+                                textDecoration: 'underline'
+                            }}
+                        >
+                            DELETE RECORD
+                        </button>
                     </div>
                 ))}
 
